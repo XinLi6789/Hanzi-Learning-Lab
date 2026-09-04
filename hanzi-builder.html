@@ -1,26 +1,70 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hanzi Builder</title>
-<style>body{font-family:Arial,sans-serif;background:#f6f7fb;color:#17243d;margin:0}.w{max-width:900px;margin:auto;padding:28px}.c{background:white;padding:28px;border-radius:24px;box-shadow:0 8px 24px #0001}.h{text-align:center;font-size:48px}.p{text-align:center;font-size:20px;color:#607089}.b{background:#3859a8;color:white;border:0;border-radius:14px;padding:14px 22px;font-size:18px;font-weight:bold;cursor:pointer}.q{font-size:25px;font-weight:bold}.build{text-align:center;font-size:55px;font-weight:bold;margin:25px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.o{font-size:20px;padding:20px;border:2px solid #dfe5ee;background:white;border-radius:16px;cursor:pointer}.good{background:#effaf4;border-color:#218c5b}.bad{background:#fff1f1;border-color:#c54a4a}.fb{margin-top:18px;padding:16px;background:#f3f5f9;border-radius:14px;font-size:18px}@media(max-width:600px){.opts{grid-template-columns:1fr}.h{font-size:38px}}</style></head>
-<body><div class="w"><div id="a"></div></div><script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hanzi Builder — Chinese Characters Are Like LEGO</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#f6f7fb;color:#17243d;font-family:Arial,"Noto Sans",sans-serif}
+.wrap{max-width:980px;margin:auto;padding:26px}.nav a{text-decoration:none;color:#3859a8;font-weight:800}
+.card{background:#fff;border:1px solid #dfe5ee;border-radius:24px;padding:28px;box-shadow:0 8px 24px #17243d10}
+.hero{text-align:center}.hero h1{font-size:46px;margin:8px}.hero p{font-size:19px;color:#607089;line-height:1.5}
+.path{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}.pill{background:#eef2ff;border-radius:99px;padding:8px 12px;font-weight:800}
+.btn{border:0;border-radius:13px;background:#3859a8;color:white;padding:13px 20px;font-size:17px;font-weight:900;cursor:pointer}
+.top{display:flex;justify-content:space-between;gap:10px;font-weight:900}.bar{height:11px;background:#e6eaf1;border-radius:99px;overflow:hidden;margin:17px 0 23px}.bar div{height:100%;background:#3859a8}
+.level{font-size:13px;font-weight:900;color:#3859a8;letter-spacing:.05em}.q{font-size:25px;font-weight:900;margin:12px 0}.build{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:54px;font-weight:800;text-align:center;margin:25px 0}
+.note{text-align:center;color:#607089;margin-top:-12px;margin-bottom:18px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.opt{border:2px solid #dfe5ee;background:white;border-radius:17px;padding:17px;cursor:pointer;text-align:center;min-height:82px}.opt:hover{border-color:#8fa0ce}
+.hz{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:35px;font-weight:800}.en{font-size:17px;color:#607089;margin-top:4px}
+.good{border-color:#218c5b;background:#effaf4}.bad{border-color:#c54a4a;background:#fff1f1}.fb{margin-top:17px;padding:15px;border-radius:14px;background:#f3f5f9;font-size:17px;line-height:1.45;min-height:58px}
+.next{text-align:right;margin-top:15px}.concept{margin-top:20px;padding:17px;border:1px solid #dfe5ee;border-radius:16px;background:#fafbfe}.concept b{font-size:18px}
+.big{font-size:68px;font-weight:900;color:#d99000}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}.compare div{border:1px solid #dfe5ee;border-radius:16px;padding:18px}
+@media(max-width:650px){.opts,.compare{grid-template-columns:1fr}.hero h1{font-size:36px}.build{font-size:43px}.wrap{padding:14px}}
+</style></head>
+<body><div class="wrap"><div class="nav"><a href="index.html">← Hanzi Learning Lab</a></div><div id="app" style="margin-top:14px"></div></div>
+<script>
 const Q=[
-["What does 人 mean?","人","person",["person","tree","sun","mouth"]],
-["What does 木 mean?","木","tree",["tree","person","moon","middle"]],
-["What does 日 mean?","日","sun / day",["sun / day","mouth","woman","country"]],
-["Two trees come together. Which character is built?","木 + 木 → ?","林",["林","明","好","国"]],
-["Sun + moon. Which character is built?","日 + 月 → ?","明",["明","林","休","问"]],
-["Person + tree. Which character is built?","亻 + 木 → ?","休",["休","他","林","明"]],
-["Woman + child. Which character is built?","女 + 子 → ?","好",["好","妈","她","安"]],
-["What does 中国 mean?","中 + 国 → 中国","China",["China","Chinese language","school","birthday"]],
-["What does 汉语 mean?","汉 + 语 → 汉语","Chinese language",["Chinese language","China","classmate","clothes"]],
-["What does 学校 mean?","学 + 校 → 学校","school",["school","student","birthday","mobile phone"]],
-["What does 生日 mean?","生 + 日 → 生日","birthday",["birthday","student","fruit","school"]],
-["What does 水果 mean?","水 + 果 → 水果","fruit",["fruit","water","clothes","classmate"]],
-["What does 同学 mean?","同 + 学 → 同学","classmate",["classmate","school","student","Chinese language"]],
-["What does 衣服 mean?","衣 + 服 → 衣服","clothes",["clothes","fruit","mobile phone","birthday"]],
-["Smart guess: 手 = hand, 机 = machine. What might 手机 mean?","手 + 机 → 手机","mobile phone",["mobile phone","handwriting","computer","watch"]]
-];let i=0,s=0,lock=false;const A=document.getElementById("a");
-function start(){i=0;s=0;show()}
-function intro(){A.innerHTML='<div class="c" style="text-align:center"><div class="h">🧱 Hanzi Builder</div><p class="p">Character → Meaning → Combination → Word</p><p class="p">Discover how Chinese characters work like building blocks.</p><button class="b" onclick="start()">Start Building</button></div>'}
-function show(){lock=false;let x=Q[i];A.innerHTML='<div class="c"><b>Question '+(i+1)+' / '+Q.length+'　 Score: '+s+'/'+i+'</b><p class="q">'+x[0]+'</p><div class="build">'+x[1]+'</div><div class="opts">'+x[3].map(v=>'<button class="o" data-v="'+v+'" onclick="pick(this)">'+v+'</button>').join('')+'</div><div class="fb" id="f">Use the building blocks as clues.</div><p style="text-align:right"><button class="b" id="n" onclick="next()" disabled>Next →</button></p></div>'}
-function pick(e){if(lock)return;lock=true;let x=Q[i],ok=e.dataset.v===x[2];if(ok)s++;document.querySelectorAll(".o").forEach(z=>{if(z.dataset.v===x[2])z.classList.add("good");else if(z===e)z.classList.add("bad")});document.getElementById("f").innerHTML=ok?"✅ <b>Correct!</b>":"💡 The answer is <b>"+x[2]+"</b>.";document.getElementById("n").disabled=false}
-function next(){i++;if(i<Q.length)show();else A.innerHTML='<div class="c" style="text-align:center"><div class="h">Build Complete!</div><div style="font-size:65px;font-weight:bold">'+s+'/'+Q.length+'</div><p class="p"><b>Big idea:</b> Chinese characters and words are built from meaningful parts.</p><button class="b" onclick="start()">Play Again</button></div>'}
-intro();</script></body></html>
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “fire”?",b:"🔥",a:"火",o:[["火",""],["木",""],["水",""],["山",""]],fb:"火 means fire. It is one of our basic Hanzi building blocks."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “tree / wood”?",b:"🌳",a:"木",o:[["木",""],["人",""],["门",""],["田",""]],fb:"木 means tree or wood."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “sun / day”?",b:"☀️",a:"日",o:[["日",""],["月",""],["口",""],["王",""]],fb:"日 means sun and is also used for day."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “person”?",b:"🧍",a:"人",o:[["人",""],["女",""],["木",""],["山",""]],fb:"人 means person."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “mouth”?",b:"👄",a:"口",o:[["口",""],["门",""],["日",""],["田",""]],fb:"口 means mouth."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “door”?",b:"🚪",a:"门",o:[["门",""],["口",""],["山",""],["王",""]],fb:"门 means door."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “mountain”?",b:"⛰️",a:"山",o:[["山",""],["水",""],["木",""],["人",""]],fb:"山 means mountain."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “water”?",b:"💧",a:"水",o:[["水",""],["火",""],["月",""],["女",""]],fb:"水 means water."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “moon / month”?",b:"🌙",a:"月",o:[["月",""],["日",""],["田",""],["门",""]],fb:"月 means moon and is also used for month."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “woman”?",b:"👩",a:"女",o:[["女",""],["人",""],["王",""],["口",""]],fb:"女 means woman."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “field”?",b:"🌾",a:"田",o:[["田",""],["日",""],["口",""],["门",""]],fb:"田 means field."},
+{l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “king”?",b:"👑",a:"王",o:[["王",""],["人",""],["山",""],["木",""]],fb:"王 means king."},
+
+{l:2,t:"REPEAT THE BLOCK",q:"人 means person. What does 从 mean?",b:"人 + 人 → 从",a:"follow",o:[["follow","follow"],["crowd","crowd"],["forest","forest"],["king","king"]],fb:"从 means follow. Repeating or arranging familiar parts can create a new character."},
+{l:2,t:"REPEAT THE BLOCK",q:"What does 众 mean?",b:"人 + 人 + 人 → 众",a:"crowd / many people",o:[["crowd / many people","crowd / many people"],["follow","follow"],["forest","forest"],["family","family"]],fb:"众 means crowd or many people. Notice the repeated 人 shapes."},
+{l:2,t:"REPEAT THE BLOCK",q:"木 means tree. What does 林 mean?",b:"木 + 木 → 林",a:"woods / forest",o:[["woods / forest","woods / forest"],["dense forest","dense forest"],["mountain","mountain"],["field","field"]],fb:"林 means woods or forest: more than one tree."},
+{l:2,t:"REPEAT THE BLOCK",q:"What does 森 mean?",b:"木 + 木 + 木 → 森",a:"dense forest",o:[["dense forest","dense forest"],["woods","woods"],["water","water"],["door","door"]],fb:"森 suggests a dense forest. Three 木 make the idea stronger."},
+
+{l:3,t:"CHARACTERS BUILD WORDS",q:"Two complete characters stay side by side. What word do they make?",b:"大 + 人 → 大人",a:"adult",o:[["adult","adult"],["big person only","big person only"],["family","family"],["prince","prince"]],fb:"大人 means adult. Here, two complete characters combine to make a WORD."},
+{l:3,t:"CHARACTERS BUILD WORDS",q:"What word is built from fire + mountain?",b:"火 + 山 → 火山",a:"volcano",o:[["volcano","volcano"],["forest fire","forest fire"],["hot mountain","hot mountain"],["sunset","sunset"]],fb:"火山 means volcano. 火 and 山 remain two separate characters."},
+{l:3,t:"CHARACTERS BUILD WORDS",q:"What word is built from woman + king?",b:"女 + 王 → 女王",a:"queen",o:[["queen","queen"],["woman","woman"],["princess","princess"],["mother","mother"]],fb:"女王 means queen."},
+{l:3,t:"CHARACTERS BUILD WORDS",q:"What word is built from king + child?",b:"王 + 子 → 王子",a:"prince",o:[["prince","prince"],["king","king"],["child","child"],["family","family"]],fb:"王子 means prince."},
+{l:3,t:"CHARACTERS BUILD WORDS",q:"What word is built from home/family + person?",b:"家 + 人 → 家人",a:"family member(s)",o:[["family member(s)","family member(s)"],["adult","adult"],["queen","queen"],["visitor","visitor"]],fb:"家人 means family member or family members."},
+
+{l:4,t:"COMPONENTS BUILD ONE CHARACTER",q:"These two components fit inside ONE character. What character do they build?",b:"亻 + 木 → ?",a:"休",o:[["休","rest"],["林","forest"],["从","follow"],["问","ask"]],fb:"亻 + 木 → 休 (rest). The parts fit together inside ONE character."},
+{l:4,t:"COMPONENTS BUILD ONE CHARACTER",q:"What character is built from 女 + 马?",b:"女 + 马 → ?",a:"妈",o:[["妈","mom"],["好","good"],["安","safe / peaceful"],["女王","queen"]],fb:"女 + 马 → 妈 (mom). 妈 is ONE character."},
+{l:4,t:"COMPONENTS BUILD ONE CHARACTER",q:"What character is built from 日 + 月?",b:"日 + 月 → ?",a:"明",o:[["明","bright"],["问","ask"],["休","rest"],["森","dense forest"]],fb:"日 + 月 → 明 (bright). Two components form ONE character."},
+{l:4,t:"COMPONENTS BUILD ONE CHARACTER",q:"What character is built from 门 + 口?",b:"门 + 口 → ?",a:"问",o:[["问","ask"],["明","bright"],["安","safe"],["妈","mom"]],fb:"门 + 口 → 问 (ask). The 口 sits inside 门."},
+{l:4,t:"COMPONENTS BUILD ONE CHARACTER",q:"What character is built from 女 + 子?",b:"女 + 子 → ?",a:"好",o:[["好","good"],["妈","mom"],["安","safe"],["休","rest"]],fb:"女 + 子 → 好 (good). Two components build ONE Hanzi."},
+{l:4,t:"COMPONENTS BUILD ONE CHARACTER",q:"What character is built from roof radical 宀 + 女?",b:"宀 + 女 → ?",a:"安",o:[["安","safe / peaceful"],["家","home"],["好","good"],["问","ask"]],fb:"宀 + 女 → 安 (safe / peaceful). Notice the top–bottom structure."},
+
+{l:5,t:"HANZI LEGO CHALLENGE",q:"Which example makes TWO characters — a word — rather than ONE character?",b:"WORD or CHARACTER?",a:"火山",o:[["火山","volcano"],["明","bright"],["好","good"],["休","rest"]],fb:"火山 is a WORD made of two complete characters: 火 + 山."},
+{l:5,t:"HANZI LEGO CHALLENGE",q:"Which example is ONE character built from components?",b:"WORD or CHARACTER?",a:"妈",o:[["妈","mom"],["女王","queen"],["王子","prince"],["家人","family"]],fb:"妈 is ONE character built from 女 + 马."}
+];
+
+let i=0,score=0,locked=false; const A=document.getElementById("app");
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function intro(){A.innerHTML=`<div class="card hero"><div class="pill" style="display:inline-block">VIDEO FOLLOW-UP • HANZI INQUIRY</div><h1>🧱 Hanzi Builder</h1><p><b>Chinese characters are like LEGO blocks.</b><br>Learn the basic blocks, repeat them, combine characters into words, and combine components into new characters.</p><div class="path"><span class="pill">1 Basic Blocks</span><span class="pill">2 Repeat</span><span class="pill">3 Build Words</span><span class="pill">4 Build One Character</span><span class="pill">5 Challenge</span></div><button class="btn" onclick="start()">Start Building</button></div>`}
+function start(){i=0;score=0;show()}
+function show(){locked=false;let x=Q[i],opts=shuffle(x.o);A.innerHTML=`<div class="top"><span>${x.t}</span><span>Score: ${score}/${i}</span></div><div class="bar"><div style="width:${i/Q.length*100}%"></div></div><div class="card"><div class="level">LEVEL ${x.l} • QUESTION ${i+1} OF ${Q.length}</div><div class="q">${x.q}</div><div class="build">${x.b}</div><div class="opts">${opts.map(o=>`<button class="opt" data-v="${o[0]}" onclick="pick(this)"><div class="hz">${/^[\u3400-\u9fff]+$/.test(o[0])?o[0]:''}</div>${o[1]?`<div class="en">${o[1]}</div>`:""}</button>`).join("")}</div><div class="fb" id="fb">Look for known blocks. Use the structure as evidence.</div><div class="next"><button class="btn" id="next" onclick="next()" disabled>Next →</button></div></div>`}
+function pick(el){if(locked)return;locked=true;let x=Q[i],ok=el.dataset.v===x.a;if(ok)score++;document.querySelectorAll(".opt").forEach(b=>{if(b.dataset.v===x.a)b.classList.add("good");else if(b===el)b.classList.add("bad")});document.getElementById("fb").innerHTML=(ok?"✅ <b>Correct.</b> ":"💡 <b>Look again.</b> ")+x.fb;document.getElementById("next").disabled=false}
+function next(){i++;if(i<Q.length)show();else finish()}
+function finish(){A.innerHTML=`<div class="card hero"><div class="pill" style="display:inline-block">BUILD COMPLETE</div><div class="big">${score}/${Q.length}</div><h1>Now you can see the system.</h1><div class="compare"><div><b>COMPONENTS → ONE CHARACTER</b><div class="build" style="font-size:35px">女 + 马 → 妈</div><p>Parts fit together inside one square character.</p></div><div><b>CHARACTERS → A WORD</b><div class="build" style="font-size:35px">火 + 山 → 火山</div><p>Complete characters stay separate and combine their meanings.</p></div></div><div class="concept"><b>Big Idea</b><p>Hanzi is not a collection of random pictures. Known parts can repeat, combine, and help us understand unfamiliar characters and words.</p></div><p><button class="btn" onclick="start()">Play Again</button></p></div>`}
+intro();
+</script></body></html>

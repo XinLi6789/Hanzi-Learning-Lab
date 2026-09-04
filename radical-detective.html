@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Radical Detective</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f7f8fb;color:#17243d;font-family:Arial,sans-serif}.w{max-width:950px;margin:auto;padding:25px}.nav a{text-decoration:none;color:#3859a8;font-weight:bold}.c{background:white;border:1px solid #dfe5ee;border-radius:24px;padding:26px}.h{text-align:center;font-size:44px}.sub{text-align:center;color:#607089;font-size:18px}.q{font-size:24px;font-weight:bold}.rad{text-align:center;font-size:65px;font-weight:bold;margin:20px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:13px}.o{border:2px solid #dfe5ee;background:white;border-radius:16px;padding:17px;font-size:20px;cursor:pointer}.good{background:#effaf4;border-color:#218c5b}.bad{background:#fff1f1;border-color:#c54a4a}.fb{margin-top:16px;padding:14px;background:#f3f5f9;border-radius:12px}.b{background:#3859a8;color:white;border:0;border-radius:12px;padding:12px 18px;font-weight:bold;font-size:16px;cursor:pointer}@media(max-width:600px){.opts{grid-template-columns:1fr}}</style></head>
+<body><div class="w"><div class="nav"><a href="index.html">← Hanzi Learning Lab</a></div><div id="a" style="margin-top:15px"></div></div>
+<script>
+const Q=[
+["亻","PEOPLE","他","他 — he",["他 — he","河 — river","裤 — trousers","唱 — sing"]],
+["口","MOUTH / SPEAKING","喝","喝 — drink",["喝 — drink","找 — look for","海 — sea","裤 — trousers"]],
+["扌","HAND / ACTION","找","找 — look for",["找 — look for","晴 — sunny","妈 — mom","语 — language"]],
+["女","FEMALE / FAMILY","妈","妈 — mom",["妈 — mom","河 — river","说 — speak","树 — tree"]],
+["讠","SPEECH / LANGUAGE","说","说 — speak",["说 — speak","裤 — trousers","花 — flower","脚 — foot"]],
+["氵","WATER","海","海 — sea",["海 — sea","唱 — sing","袖 — sleeve","姐 — older sister"]],
+["艹","PLANTS","花","花 — flower",["花 — flower","河 — river","找 — look for","礼 — courtesy"]],
+["木","TREES / WOOD","林","林 — forest",["林 — forest","说 — speak","裤 — trousers","脸 — face"]],
+["日","SUN / DAY / TIME","晴","晴 — sunny",["晴 — sunny","海 — sea","找 — look for","姐 — older sister"]],
+["宀","HOME / ROOF","家","家 — home",["家 — home","河 — river","说 — speak","裤 — trousers"]],
+["目","EYES / SEEING","眼","眼 — eye",["眼 — eye","海 — sea","花 — flower","裤 — trousers"]],
+["衤","CLOTHING","裤","裤 — trousers",["裤 — trousers","祝 — bless","河 — river","姐 — older sister"]],
+["礻","RITUAL / BLESSING","祝","祝 — bless",["祝 — bless","裤 — trousers","海 — sea","找 — look for"]],
+["纟","THREAD / TEXTILE","线","线 — thread / line",["线 — thread / line","家 — home","眼 — eye","唱 — sing"]]
+];let i=0,s=0,lock=false;const A=document.getElementById("a");function sh(x){return [...x].sort(()=>Math.random()-.5)}
+function intro(){A.innerHTML='<div class="c" style="text-align:center"><div class="h">🔎 Radical Detective</div><p class="sub">A radical can give a meaning clue. Can you find the matching character?</p><button class="b" onclick="start()">Start</button></div>'}
+function start(){i=0;s=0;show()}function show(){lock=false;let x=Q[i],o=sh(x[4]);A.innerHTML='<div class="c"><b>Question '+(i+1)+' / '+Q.length+'　Score: '+s+'/'+i+'</b><div class="q">Which character is most likely connected with <b>'+x[1]+'</b>?</div><div class="rad">'+x[0]+'</div><div class="opts">'+o.map(v=>'<button class="o" data-v="'+v+'" onclick="pick(this)">'+v+'</button>').join("")+'</div><div id="f" class="fb">Use the radical as your evidence.</div><p style="text-align:right"><button id="n" class="b" onclick="next()" disabled>Next →</button></p></div>'}
+function pick(e){if(lock)return;lock=true;let x=Q[i],ok=e.dataset.v===x[3];if(ok)s++;document.querySelectorAll(".o").forEach(z=>{if(z.dataset.v===x[3])z.classList.add("good");else if(z===e)z.classList.add("bad")});document.getElementById("f").innerHTML=ok?"✅ Correct!":"💡 Look for <b>"+x[0]+"</b>. The answer is <b>"+x[3]+"</b>.";document.getElementById("n").disabled=false}
+function next(){i++;if(i<Q.length)show();else A.innerHTML='<div class="c" style="text-align:center"><div class="h">Mission Complete!</div><p class="sub">Score: <b>'+s+'/'+Q.length+'</b></p><p>Radicals give clues — not always the complete meaning.</p><button class="b" onclick="start()">Play Again</button></div>'}intro();
+</script></body></html>
