@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hanzi Builder</title>
+<style>body{font-family:Arial,sans-serif;background:#f6f7fb;color:#17243d;margin:0}.w{max-width:900px;margin:auto;padding:28px}.c{background:white;padding:28px;border-radius:24px;box-shadow:0 8px 24px #0001}.h{text-align:center;font-size:48px}.p{text-align:center;font-size:20px;color:#607089}.b{background:#3859a8;color:white;border:0;border-radius:14px;padding:14px 22px;font-size:18px;font-weight:bold;cursor:pointer}.q{font-size:25px;font-weight:bold}.build{text-align:center;font-size:55px;font-weight:bold;margin:25px}.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.o{font-size:20px;padding:20px;border:2px solid #dfe5ee;background:white;border-radius:16px;cursor:pointer}.good{background:#effaf4;border-color:#218c5b}.bad{background:#fff1f1;border-color:#c54a4a}.fb{margin-top:18px;padding:16px;background:#f3f5f9;border-radius:14px;font-size:18px}@media(max-width:600px){.opts{grid-template-columns:1fr}.h{font-size:38px}}</style></head>
+<body><div class="w"><div id="a"></div></div><script>
+const Q=[
+["What does 人 mean?","人","person",["person","tree","sun","mouth"]],
+["What does 木 mean?","木","tree",["tree","person","moon","middle"]],
+["What does 日 mean?","日","sun / day",["sun / day","mouth","woman","country"]],
+["Two trees come together. Which character is built?","木 + 木 → ?","林",["林","明","好","国"]],
+["Sun + moon. Which character is built?","日 + 月 → ?","明",["明","林","休","问"]],
+["Person + tree. Which character is built?","亻 + 木 → ?","休",["休","他","林","明"]],
+["Woman + child. Which character is built?","女 + 子 → ?","好",["好","妈","她","安"]],
+["What does 中国 mean?","中 + 国 → 中国","China",["China","Chinese language","school","birthday"]],
+["What does 汉语 mean?","汉 + 语 → 汉语","Chinese language",["Chinese language","China","classmate","clothes"]],
+["What does 学校 mean?","学 + 校 → 学校","school",["school","student","birthday","mobile phone"]],
+["What does 生日 mean?","生 + 日 → 生日","birthday",["birthday","student","fruit","school"]],
+["What does 水果 mean?","水 + 果 → 水果","fruit",["fruit","water","clothes","classmate"]],
+["What does 同学 mean?","同 + 学 → 同学","classmate",["classmate","school","student","Chinese language"]],
+["What does 衣服 mean?","衣 + 服 → 衣服","clothes",["clothes","fruit","mobile phone","birthday"]],
+["Smart guess: 手 = hand, 机 = machine. What might 手机 mean?","手 + 机 → 手机","mobile phone",["mobile phone","handwriting","computer","watch"]]
+];let i=0,s=0,lock=false;const A=document.getElementById("a");
+function start(){i=0;s=0;show()}
+function intro(){A.innerHTML='<div class="c" style="text-align:center"><div class="h">🧱 Hanzi Builder</div><p class="p">Character → Meaning → Combination → Word</p><p class="p">Discover how Chinese characters work like building blocks.</p><button class="b" onclick="start()">Start Building</button></div>'}
+function show(){lock=false;let x=Q[i];A.innerHTML='<div class="c"><b>Question '+(i+1)+' / '+Q.length+'　 Score: '+s+'/'+i+'</b><p class="q">'+x[0]+'</p><div class="build">'+x[1]+'</div><div class="opts">'+x[3].map(v=>'<button class="o" data-v="'+v+'" onclick="pick(this)">'+v+'</button>').join('')+'</div><div class="fb" id="f">Use the building blocks as clues.</div><p style="text-align:right"><button class="b" id="n" onclick="next()" disabled>Next →</button></p></div>'}
+function pick(e){if(lock)return;lock=true;let x=Q[i],ok=e.dataset.v===x[2];if(ok)s++;document.querySelectorAll(".o").forEach(z=>{if(z.dataset.v===x[2])z.classList.add("good");else if(z===e)z.classList.add("bad")});document.getElementById("f").innerHTML=ok?"✅ <b>Correct!</b>":"💡 The answer is <b>"+x[2]+"</b>.";document.getElementById("n").disabled=false}
+function next(){i++;if(i<Q.length)show();else A.innerHTML='<div class="c" style="text-align:center"><div class="h">Build Complete!</div><div style="font-size:65px;font-weight:bold">'+s+'/'+Q.length+'</div><p class="p"><b>Big idea:</b> Chinese characters and words are built from meaningful parts.</p><button class="b" onclick="start()">Play Again</button></div>'}
+intro();</script></body></html>
