@@ -1,60 +1,142 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hanzi Visual Lab</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#f7f8fb;color:#17243d;font-family:Arial,sans-serif}.w{max-width:980px;margin:auto;padding:25px}.nav a{text-decoration:none;color:#3859a8;font-weight:bold}.hero{text-align:center}.hero h1{font-size:43px;margin:10px}.hero p{color:#607089;font-size:18px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}.tab{border:1px solid #dfe5ee;background:white;border-radius:12px;padding:11px 13px;font-weight:bold;cursor:pointer}.tab.on{border-color:#3859a8;background:#eef2ff}.card{background:white;border:1px solid #dfe5ee;border-radius:24px;padding:26px}.big{font-size:50px;font-weight:bold;text-align:center;margin:24px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.box{border:1px solid #dfe5ee;border-radius:16px;padding:16px;text-align:center}.hz{font-size:37px;font-weight:bold}.muted{color:#607089}.next{margin-top:16px;text-align:right}.b{background:#3859a8;color:white;border:0;border-radius:12px;padding:12px 18px;font-weight:bold;cursor:pointer}@media(max-width:650px){.grid{grid-template-columns:1fr}.hero h1{font-size:35px}}</style></head>
-<body><div class="w"><div class="nav"><a href="index.html">← Hanzi Learning Lab</a></div><div class="hero"><h1>🧠 Hanzi Visual Lab</h1><p>Notice patterns. Make a prediction. Then explain your evidence.</p></div><div class="tabs" id="tabs"></div><div class="card" id="card"></div><div class="next"><button class="b" id="next">Next →</button></div></div>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hanzi Visual Lab</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#f6f8fc;color:#17243d;font-family:Arial,"Noto Sans SC",sans-serif}
+.wrap{max-width:960px;margin:auto;padding:24px}.top a{text-decoration:none;color:#3859a8;font-weight:700}
+.hero{text-align:center;margin:16px 0 22px}.hero h1{font-size:42px;margin:8px}.hero p{color:#66758d;font-size:18px}
+.progress{height:9px;background:#e7ebf3;border-radius:10px;overflow:hidden;margin:16px 0 22px}.bar{height:100%;background:#3859a8;transition:.25s}
+.card{background:#fff;border:1px solid #dde3ed;border-radius:24px;padding:28px;min-height:430px;box-shadow:0 8px 24px rgba(31,48,80,.06)}
+.kicker{font-size:13px;letter-spacing:.08em;color:#718099;font-weight:800}.title{font-size:30px;margin:8px 0}.sub{color:#66758d;font-size:17px}
+.hanzi{font-size:56px;font-weight:800;text-align:center;margin:24px 0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.box{border:1px solid #dde3ed;border-radius:16px;padding:16px;text-align:center}.hz{font-size:36px;font-weight:800}
+.note{background:#fff7df;border-radius:14px;padding:14px;margin:14px 0}.question{border-top:1px solid #e7eaf0;margin-top:18px;padding-top:18px}
+.question h3{font-size:18px}.opts{display:flex;gap:9px;flex-wrap:wrap}.opt{background:#fff;border:1px solid #cbd4e2;border-radius:11px;padding:10px 14px;font-size:17px;font-weight:700;cursor:pointer}
+.opt:hover{border-color:#3859a8}.opt.correct{background:#edf8f0;border:2px solid #4d9865}.opt.wrong{background:#fff0f0;border:2px solid #c96b6b}
+.feedback{display:none;margin-top:10px;font-weight:700}.feedback.show{display:block}.controls{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer}.btn:disabled{opacity:.45;cursor:not-allowed}.gate{text-align:right;margin-top:9px;color:#9a5b16;font-weight:700;font-size:14px}.primary{background:#3859a8;color:#fff}.secondary{background:#e9edf5;color:#253754}
+.rule{font-size:28px;text-align:center;font-weight:800;margin:18px}.cn{text-align:center;color:#66758d;font-weight:700}.pool{font-size:25px;line-height:1.8;text-align:center}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.hero h1{font-size:34px}.card{padding:20px}.hanzi{font-size:48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a href="index.html">← Hanzi Learning Lab</a></div>
+<div class="hero"><h1>🧠 Hanzi Visual Lab</h1><p>See the parts. Notice the pattern. Predict how Hanzi works.</p></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<main class="card" id="card"></main>
+<div class="controls"><button class="btn secondary" id="back">← Back</button><button class="btn primary" id="next">Next →</button></div><div class="gate" id="gate"></div>
+</div>
 <script>
-const V=[
-["Building Blocks","Hanzi works like LEGO","亻 + 木 → 休",'<div class="grid"><div class="box"><div class="hz">他</div><b>亻 + 也</b><p class="muted">left → right</p></div><div class="box"><div class="hz">她</div><b>女 + 也</b><p class="muted">same part, new meaning clue</p></div><div class="box"><div class="hz">好</div><b>女 + 子</b><p class="muted">components combine</p></div></div>'],
-["Meaning Clues","Radicals create meaning families","氵 → 河 · 海 · 洗",'<div class="grid"><div class="box"><div class="hz">口</div><b>Mouth / speaking</b><p>吃 · 喝 · 唱</p></div><div class="box"><div class="hz">扌</div><b>Hand / action</b><p>打 · 拉 · 找</p></div><div class="box"><div class="hz">衤</div><b>Clothing</b><p>衬 · 裤 · 袖</p></div></div>'],
-["Build Words","Characters combine to build words","学 → 学生 · 学校 · 同学 · 学习",'<div class="grid"><div class="box"><div class="hz">中国</div><p>China</p></div><div class="box"><div class="hz">生日</div><p>birthday</p></div><div class="box"><div class="hz">水果</div><p>fruit</p></div></div>'],
-["Writing Lab","Learn the patterns. Then transfer them to familiar Hanzi.","SEE → NOTICE → CHOOSE → TRANSFER",'<style>
-.wlab{display:grid;gap:16px}.wrule{border:1px solid #dfe5ee;border-radius:18px;padding:18px;background:#fafbff}.wrule h3{margin:0 0 4px}.cn{color:#607089;font-weight:bold}.demo{font-size:30px;font-weight:bold;text-align:center;margin:12px}.qcard{border-top:1px solid #e4e8f0;padding-top:12px;margin-top:12px}.qcard b{display:block;margin-bottom:8px}.wopts{display:flex;gap:8px;flex-wrap:wrap}.wopt{border:1px solid #ccd5e3;background:#fff;border-radius:10px;padding:9px 13px;font-size:18px;font-weight:bold;cursor:pointer}.wopt:hover{border-color:#3859a8}.wopt.correct{background:#eef9f1;border:2px solid #4f9a69}.wopt.wrong{background:#fff1f1;border:2px solid #c96a6a}.reveal{display:none;margin-top:8px;font-weight:bold;color:#28754c}.reveal.show{display:block}.mix{background:#eef2ff;border-radius:18px;padding:20px}.mixchar{font-size:52px;font-weight:bold}.core{font-size:25px;line-height:1.8;text-align:center}.tip{background:#fff8e7;border-radius:14px;padding:14px}
-</style><div class="wlab">'+
-'<div class="tip"><b>✍️ Hanzi Writing Lab</b><br>Do not copy a character as a picture. Look for its structure and use patterns to predict the order.</div>'+
-'<div class="wrule"><h3>1. Top → Bottom</h3><div class="cn">从上到下</div><div class="demo">三 → 学 → 岁</div><p class="muted">When strokes or parts are stacked, begin higher and move downward.</p>'+
-'<div class="qcard"><b>Q1. Which character most clearly has a TOP → BOTTOM structure?</b><div class="wopts"><button class="wopt" data-ok="1">学</button><button class="wopt">你</button><button class="wopt">红</button><span class="reveal">✓ 学</span></div></div>'+
-'<div class="qcard"><b>Q2. In 岁, which part is higher?</b><div class="wopts"><button class="wopt" data-ok="1">山</button><button class="wopt">夕</button><span class="reveal">✓ 山 — notice the top-bottom structure.</span></div></div>'+
-'<div class="qcard"><b>Q3. Which familiar character also makes you think TOP → BOTTOM?</b><div class="wopts"><button class="wopt" data-ok="1">喜</button><button class="wopt">她</button><button class="wopt">住</button><span class="reveal">✓ 喜</span></div></div></div>'+
-'<div class="wrule"><h3>2. Left → Right</h3><div class="cn">从左到右</div><div class="demo">你 = 亻 + 尔　　校 = 木 + 交</div><p class="muted">For left-right characters, finish the left component before moving to the right.</p>'+
-'<div class="qcard"><b>Q1. Which character has a LEFT → RIGHT structure?</b><div class="wopts"><button class="wopt" data-ok="1">红</button><button class="wopt">学</button><button class="wopt">岁</button><span class="reveal">✓ 红 = 纟 + 工</span></div></div>'+
-'<div class="qcard"><b>Q2. Which component comes first in 她?</b><div class="wopts"><button class="wopt" data-ok="1">女</button><button class="wopt">也</button><span class="reveal">✓ 女</span></div></div>'+
-'<div class="qcard"><b>Q3. Which pair are BOTH left-right characters?</b><div class="wopts"><button class="wopt" data-ok="1">住 + 课</button><button class="wopt">学 + 岁</button><button class="wopt">国 + 喜</button><span class="reveal">✓ 住 + 课</span></div></div></div>'+
-'<div class="wrule"><h3>3. Horizontal → Vertical</h3><div class="cn">先横后竖</div><div class="demo">十 = 一 → 丨</div><p class="muted">When a horizontal and vertical stroke cross, horizontal commonly comes first.</p>'+
-'<div class="qcard"><b>Q1. Which stroke comes first in 十?</b><div class="wopts"><button class="wopt" data-ok="1">一</button><button class="wopt">丨</button><span class="reveal">✓ 一</span></div></div>'+
-'<div class="qcard"><b>Q2. Look at 车. Which pattern can help with crossing strokes?</b><div class="wopts"><button class="wopt" data-ok="1">Horizontal → Vertical</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Horizontal → Vertical</span></div></div>'+
-'<div class="qcard"><b>Q3. Which familiar character can also remind you of horizontal-before-vertical?</b><div class="wopts"><button class="wopt" data-ok="1">去</button><button class="wopt">她</button><button class="wopt">问</button><span class="reveal">✓ 去 — use the rule where horizontal and vertical strokes cross.</span></div></div></div>'+
-'<div class="wrule"><h3>4. Left-falling → Right-falling</h3><div class="cn">先撇后捺</div><div class="demo">人 = 丿 → ㇏　　大 · 天</div><p class="muted">When 撇 and 捺 form a pair, 撇 commonly comes first.</p>'+
-'<div class="qcard"><b>Q1. Which stroke comes first in 人?</b><div class="wopts"><button class="wopt" data-ok="1">丿</button><button class="wopt">㇏</button><span class="reveal">✓ 丿</span></div></div>'+
-'<div class="qcard"><b>Q2. In 大, which comes first: 撇 or 捺?</b><div class="wopts"><button class="wopt" data-ok="1">撇</button><button class="wopt">捺</button><span class="reveal">✓ 撇</span></div></div>'+
-'<div class="qcard"><b>Q3. Which familiar character also contains this 撇 → 捺 pattern?</b><div class="wopts"><button class="wopt" data-ok="1">天</button><button class="wopt">红</button><button class="wopt">叫</button><span class="reveal">✓ 天</span></div></div></div>'+
-'<div class="wrule"><h3>5. Outside → Inside</h3><div class="cn">先外后内</div><div class="demo">问 = 门 → 口</div><p class="muted">For enclosing structures, begin the outer structure before the inside.</p>'+
-'<div class="qcard"><b>Q1. Now transfer the rule to 国. What do you begin before the inside 玉?</b><div class="wopts"><button class="wopt" data-ok="1">The outer frame</button><button class="wopt">玉</button><span class="reveal">✓ The outer frame</span></div></div>'+
-'<div class="qcard"><b>Q2. Which familiar character has an enclosing structure?</b><div class="wopts"><button class="wopt" data-ok="1">国</button><button class="wopt">校</button><button class="wopt">红</button><span class="reveal">✓ 国</span></div></div>'+
-'<div class="qcard"><b>Q3. Which is NOT a left-right structure?</b><div class="wopts"><button class="wopt" data-ok="1">国</button><button class="wopt">你</button><button class="wopt">她</button><span class="reveal">✓ 国 — it is an enclosing structure.</span></div></div></div>'+
-'<div class="wrule"><h3>6. LEGO Rule: Finish One Component</h3><div class="cn">部件写完整</div><div class="demo">你：亻 → 尔　　红：纟 → 工　　校：木 → 交</div><p class="muted">Finish one building block before starting the next.</p>'+
-'<div class="qcard"><b>Q1. Which component do you finish first in 住?</b><div class="wopts"><button class="wopt" data-ok="1">亻</button><button class="wopt">主</button><span class="reveal">✓ 亻</span></div></div>'+
-'<div class="qcard"><b>Q2. Which component do you finish first in 课?</b><div class="wopts"><button class="wopt" data-ok="1">讠</button><button class="wopt">果</button><span class="reveal">✓ 讠</span></div></div>'+
-'<div class="qcard"><b>Q3. Which component do you finish first in 欢?</b><div class="wopts"><button class="wopt" data-ok="1">又</button><button class="wopt">欠</button><span class="reveal">✓ 又</span></div></div></div>'+
-'<div class="mix"><h2>🏆 Mixed Hanzi Challenge</h2><p>Now the examples disappear. Use what you discovered.</p>'+
-'<div class="qcard"><div class="mixchar">学</div><b>Which structure helps most?</b><div class="wopts"><button class="wopt" data-ok="1">Top → Bottom</button><button class="wopt">Left → Right</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Top → Bottom</span></div></div>'+
-'<div class="qcard"><div class="mixchar">国</div><b>Which rule helps most?</b><div class="wopts"><button class="wopt" data-ok="1">Outside → Inside</button><button class="wopt">Left → Right</button><button class="wopt">撇 → 捺</button><span class="reveal">✓ Outside → Inside</span></div></div>'+
-'<div class="qcard"><div class="mixchar">泰</div><b>Which patterns can you notice?</b><div class="wopts"><button class="wopt" data-ok="1">Top → Bottom + 撇 → 捺</button><button class="wopt">Left → Right</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Top → Bottom + 撇 → 捺</span></div></div>'+
-'<div class="qcard"><div class="mixchar">红</div><b>Which component should be completed first?</b><div class="wopts"><button class="wopt" data-ok="1">纟</button><button class="wopt">工</button><span class="reveal">✓ 纟</span></div></div>'+
-'<div class="qcard"><div class="mixchar">你</div><b>Which structure helps you predict the order?</b><div class="wopts"><button class="wopt" data-ok="1">Left → Right</button><button class="wopt">Top → Bottom</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Left → Right</span></div></div>'+
-'<div class="qcard"><div class="mixchar">美</div><b>Which TWO ideas are useful?</b><div class="wopts"><button class="wopt" data-ok="1">Top → Bottom + 撇 before 捺</button><button class="wopt">Left → Right</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Top → Bottom + 撇 before 捺</span></div></div>'+
-'<div class="qcard"><div class="mixchar">校</div><b>Which component is completed first?</b><div class="wopts"><button class="wopt" data-ok="1">木</button><button class="wopt">交</button><span class="reveal">✓ 木</span></div></div>'+
-'<div class="qcard"><div class="mixchar">叫</div><b>Structure Detective: How is 叫 mainly built?</b><div class="wopts"><button class="wopt" data-ok="1">Left → Right</button><button class="wopt">Top → Bottom</button><button class="wopt">Enclosed</button><span class="reveal">✓ Left → Right: 口 + 丩.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">爸</div><b>Which description fits the structure best?</b><div class="wopts"><button class="wopt" data-ok="1">Top → Bottom</button><button class="wopt">Left → Right</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Top → Bottom: 父 above 巴.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">谢</div><b>Component Detective: Which component is on the left?</b><div class="wopts"><button class="wopt" data-ok="1">讠</button><button class="wopt">身</button><button class="wopt">寸</button><span class="reveal">✓ 讠 is the left component.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">哥</div><b>Which direction best describes the overall structure?</b><div class="wopts"><button class="wopt" data-ok="1">Top → Bottom</button><button class="wopt">Left → Right</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Top → Bottom.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">再</div><b>Which basic rule can help when horizontal and vertical strokes meet?</b><div class="wopts"><button class="wopt" data-ok="1">Horizontal → Vertical</button><button class="wopt">撇 → 捺</button><button class="wopt">Outside → Inside</button><span class="reveal">✓ Horizontal → Vertical.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">我</div><b>Does ONE simple structure rule explain this whole character?</b><div class="wopts"><button class="wopt" data-ok="1">No — check the character’s stroke order</button><button class="wopt">Yes — Left → Right only</button><button class="wopt">Yes — Outside → Inside</button><span class="reveal">✓ Good detective work. Rules help us predict, but they do not replace checking every new character.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">过</div><b>Which part is the movement radical?</b><div class="wopts"><button class="wopt" data-ok="1">辶</button><button class="wopt">寸</button><span class="reveal">✓ 辶. This is a good example where component knowledge and exact stroke order work together.</span></div></div>'+
-'<div class="qcard"><div class="mixchar">见</div><b>Which strategy is best if the simple six rules do not fully tell you the order?</b><div class="wopts"><button class="wopt" data-ok="1">Use the patterns, then check the stroke order</button><button class="wopt">Guess randomly</button><button class="wopt">Write the hardest stroke first</button><span class="reveal">✓ Use patterns to predict, then check.</span></div></div>'+<p class="muted"><b>Core character pool:</b></p><div class="core">学 · 国 · 泰 · 天 · 我 · 叫 · 大 · 岁 · 去 · 过 · 红 · 你 · 她 · 爸 · 弟 · 哥 · 校 · 住 · 再 · 见 · 谢 · 喜 · 欢 · 车 · 美 · 课</div>'+
-'<div class="tip"><b>Big idea:</b> A Hanzi may use more than one writing pattern. Look at the structure first, then predict the order.</div></div></div>'],
-["Character Detective","Use known clues to guess an unknown character","湖",'<div class="box"><div class="hz">湖</div><p><b>Step 1:</b> Find the radical → 氵</p><p><b>Step 2:</b> Recall the clue → WATER</p><p><b>Step 3:</b> Make a smart prediction</p><p class="muted">湖 = lake. You did not need to memorize the whole character first.</p></div>']
-];let n=0;const C=document.getElementById("card"),T=document.getElementById("tabs");
-function draw(){T.innerHTML=V.map((x,i)=>'<button class="tab '+(i===n?"on":"")+'" data-i="'+i+'">'+(i+1)+'. '+x[0]+'</button>').join("");let x=V[n];C.innerHTML='<div class="muted"><b>STAGE '+(n+1)+'</b></div><h2>'+x[1]+'</h2><div class="big">'+x[2]+'</div>'+x[3]+'<p class="muted" style="margin-top:18px"><b>Student thinking:</b> What pattern do you notice? What evidence supports your idea?</p>';T.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{n=+b.dataset.i;draw()}));
-C.querySelectorAll(".wopt").forEach(b=>b.addEventListener("click",()=>{const q=b.closest(".qcard");if(!q)return;q.querySelectorAll(".wopt").forEach(x=>{x.classList.remove("correct","wrong")});const good=b.dataset.ok==="1";b.classList.add(good?"correct":"wrong");const ans=q.querySelector(".reveal");if(ans)ans.classList.add("show")}));
-document.getElementById("next").textContent=n===V.length-1?"Start Again ↻":"Next →"}
-document.getElementById("next").addEventListener("click",()=>{n=n===V.length-1?0:n+1;draw()});draw();
-</script></body></html>
+const slides = [
+{t:"Building Blocks",s:"Hanzi works like LEGO",big:"亻 + 木 → 休",body:`<div class="grid">
+<div class="box"><div class="hz">你</div><b>亻 + 尔</b><p>parts build one character</p></div>
+<div class="box"><div class="hz">她</div><b>女 + 也</b><p>same structure, different clue</p></div>
+<div class="box"><div class="hz">校</div><b>木 + 交</b><p>finish one component, then the next</p></div></div>
+<div class="note"><b>Big idea:</b> Chinese characters are not random pictures. They are built from reusable parts.</div>`},
+{t:"Meaning Clues",s:"A radical gives a clue — not the whole meaning",big:"氵　口　扌　衤",body:`<div class="grid">
+<div class="box"><div class="hz">氵</div><b>Water</b><p>河 · 海 · 洗</p></div>
+<div class="box"><div class="hz">口</div><b>Mouth / speaking</b><p>吃 · 喝 · 唱</p></div>
+<div class="box"><div class="hz">衤</div><b>Clothing</b><p>衬 · 裤 · 袖</p></div></div>`},
+{t:"Build Words",s:"Known characters can combine to make words",big:"学 → 学生 · 学校 · 同学",body:`<div class="grid">
+<div class="box"><div class="hz">中国</div><p>China</p></div><div class="box"><div class="hz">生日</div><p>birthday</p></div><div class="box"><div class="hz">水果</div><p>fruit</p></div></div>`},
+
+{t:"Writing Lab 1/7",s:"Top → Bottom",big:"从上到下",body:`
+<div class="rule">三　→　学　→　岁</div><div class="cn">When parts are stacked, start higher and move downward.</div>
+${q("Which character has a TOP → BOTTOM structure?",["喜","你","红"],0,"✓ 喜")}
+${q("In 岁, which part is higher?",["山","夕"],0,"✓ 山")}
+${q("Which character is NOT mainly top-bottom?",["她","学","爸"],0,"✓ 她 is mainly left-right.")}`},
+
+{t:"Writing Lab 2/7",s:"Left → Right",big:"从左到右",body:`
+<div class="rule">你 = 亻 + 尔　　校 = 木 + 交</div><div class="cn">Finish the left component before moving to the right.</div>
+${q("Which character has a LEFT → RIGHT structure?",["红","岁","学"],0,"✓ 红 = 纟 + 工")}
+${q("Which component comes first in 她?",["女","也"],0,"✓ 女")}
+${q("Which pair are BOTH left-right characters?",["住 + 课","哥 + 岁","国 + 喜"],0,"✓ 住 + 课")}`},
+
+{t:"Writing Lab 3/7",s:"Horizontal → Vertical",big:"先横后竖",body:`
+<div class="rule">十 = 一 → 丨</div><div class="cn">When horizontal and vertical strokes cross, horizontal commonly comes first.</div>
+${q("Which stroke comes first in 十?",["一","丨"],0,"✓ 一")}
+${q("Which rule helps with crossing strokes in 车?",["Horizontal → Vertical","Outside → Inside"],0,"✓ Horizontal → Vertical")}
+${q("Which familiar character also contains crossing horizontal and vertical strokes?",["去","她","问"],0,"✓ 去")}`},
+
+{t:"Writing Lab 4/7",s:"Left-falling → Right-falling",big:"先撇后捺",body:`
+<div class="rule">人 = 丿 → ㇏　　大 · 天</div><div class="cn">When 撇 and 捺 form a pair, 撇 commonly comes first.</div>
+${q("Which stroke comes first in 人?",["丿","㇏"],0,"✓ 丿")}
+${q("In 大, which stroke comes first?",["横","撇","捺"],0,"✓ 横")}
+${q("In 天, which stroke comes first?",["横","撇","捺"],0,"✓ 横")}`},
+
+{t:"Writing Lab 5/7",s:"Outside → Inside",big:"先外后内",body:`
+<div class="rule">问 = 门 → 口</div><div class="cn">Begin the enclosing structure before writing the inside.</div>
+${q("Transfer the rule to 国. What do you begin before 玉?",["Outer frame","玉"],0,"✓ Outer frame")}
+${q("Which character has an enclosing structure?",["国","校","红"],0,"✓ 国")}
+${q("Which character is NOT left-right?",["国","你","她"],0,"✓ 国")}`},
+
+{t:"Writing Lab 6/7",s:"LEGO Rule — Finish One Component",big:"部件写完整",body:`
+<div class="rule">你：亻 → 尔　　红：纟 → 工</div><div class="cn">A useful writing strategy: finish one building block before starting the next.</div>
+${q("Which component do you finish first in 住?",["亻","主"],0,"✓ 亻")}
+${q("Which component do you finish first in 课?",["讠","果"],0,"✓ 讠")}
+${q("Which component do you finish first in 欢?",["又","欠"],0,"✓ 又")}`},
+
+{t:"Writing Lab 7/7",s:"Mixed Hanzi Challenge",big:"🏆",body:`
+${q("学 — Which structure helps most?",["Top → Bottom","Left → Right","Outside → Inside"],0,"✓ Top → Bottom")}
+${q("国 — Which rule helps most?",["Outside → Inside","Left → Right","撇 → 捺"],0,"✓ Outside → Inside")}
+${q("泰 — Which TWO ideas can help?",["Top → Bottom + 撇 before 捺","Left → Right","Outside → Inside"],0,"✓ Top → Bottom + 撇 before 捺")}
+${q("红 — Which component is completed first?",["纟","工"],0,"✓ 纟")}
+${q("叫 — How is the character mainly built?",["Left → Right","Top → Bottom","Enclosed"],0,"✓ Left → Right")}
+${q("爸 — Which description fits best?",["Top → Bottom","Left → Right","Outside → Inside"],0,"✓ Top → Bottom")}
+${q("谢 — Which component is on the left?",["讠","身","寸"],0,"✓ 讠")}
+${q("我 — Does one simple structure rule explain the whole character?",["No — use patterns, then check stroke order","Yes — Left → Right only","Yes — Outside → Inside"],0,"✓ Correct. Patterns help us predict; they do not replace checking every new character.")}
+<div class="note"><b>Core characters:</b><div class="pool">学 · 国 · 泰 · 天 · 我 · 叫 · 大 · 岁 · 去 · 过 · 红 · 你 · 她 · 爸 · 弟 · 哥 · 校 · 住 · 再 · 见 · 谢 · 喜 · 欢 · 车 · 美 · 课</div></div>`},
+
+{t:"Character Detective",s:"Use clues to investigate an unfamiliar Hanzi",big:"湖",body:`
+<div class="box"><div class="hz">湖</div><p><b>1.</b> Find a familiar part → 氵</p><p><b>2.</b> Recall its clue → WATER</p><p><b>3.</b> Predict the meaning category</p><p><b>4.</b> Check → 湖 means <b>lake</b>.</p></div>
+<div class="note"><b>Final idea:</b> SEE → BREAK INTO PARTS → NOTICE STRUCTURE → PREDICT → CHECK → WRITE</div>`}
+];
+
+function q(text,opts,correct,feedback){
+ let buttons=opts.map((o,i)=>`<button class="opt" data-ok="${i===correct?1:0}">${o}</button>`).join("");
+ return `<div class="question"><h3>${text}</h3><div class="opts">${buttons}</div><div class="feedback">${feedback}</div></div>`;
+}
+let i=0;
+const answered=slides.map(()=>new Set());
+const card=document.getElementById("card"),bar=document.getElementById("bar"),back=document.getElementById("back"),next=document.getElementById("next"),gate=document.getElementById("gate");
+
+function updateGate(){
+ const questions=[...card.querySelectorAll(".question")];
+ const needsAnswers=questions.length>0;
+ const complete=!needsAnswers || answered[i].size===questions.length;
+ next.disabled=!complete;
+ gate.textContent=!complete ? `Answer all ${questions.length} question${questions.length>1?"s":""} before continuing. (${answered[i].size}/${questions.length})` : "";
+}
+
+function render(){
+ const x=slides[i];
+ card.innerHTML=`<div class="kicker">STAGE ${i+1} OF ${slides.length}</div><div class="title">${x.t}</div><div class="sub">${x.s}</div><div class="hanzi">${x.big}</div>${x.body}`;
+ bar.style.width=((i+1)/slides.length*100)+"%";
+ back.disabled=i===0;
+ next.textContent=i===slides.length-1?"Start Again ↻":"Next →";
+ const questions=[...card.querySelectorAll(".question")];
+ questions.forEach((question,qi)=>{
+   question.querySelectorAll(".opt").forEach(btn=>btn.onclick=()=>{
+     question.querySelectorAll(".opt").forEach(b=>b.classList.remove("correct","wrong"));
+     btn.classList.add(btn.dataset.ok==="1"?"correct":"wrong");
+     question.querySelector(".feedback").classList.add("show");
+     answered[i].add(qi);
+     updateGate();
+   });
+ });
+ updateGate();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+back.onclick=()=>{if(i>0){i--;render()}};
+next.onclick=()=>{
+ if(next.disabled)return;
+ i=i===slides.length-1?0:i+1;
+ render();
+};
+render();
+</script>
+</body></html>
