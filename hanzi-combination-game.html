@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hanzi Combination Game</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f7fb;color:#18243a}
+.wrap{max-width:980px;margin:auto;padding:24px}
+.hero{text-align:center;margin-bottom:18px}
+.hero h1{font-size:40px;margin:8px 0}
+.hero p{font-size:18px;color:#65728a;margin:6px 0}
+.progress{height:10px;background:#e6ebf3;border-radius:99px;overflow:hidden;margin:18px 0}
+.bar{height:100%;width:0;background:#4664b3;transition:.25s}
+.card{background:#fff;border:1px solid #dce3ee;border-radius:24px;padding:28px;box-shadow:0 8px 24px rgba(36,54,88,.06);min-height:520px}
+.badge{display:inline-block;background:#edf1fb;color:#4664b3;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:800;letter-spacing:.04em}
+h2{font-size:30px;margin:16px 0 6px}
+.sub{color:#6c7890;font-size:17px}
+.big{font-size:58px;font-weight:800;text-align:center;margin:24px 0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.tile{background:#fafbfe;border:1px solid #dfe5ef;border-radius:16px;padding:15px;text-align:center}
+.hz{font-size:38px;font-weight:800;margin-bottom:4px}
+.en{font-size:14px;color:#718099}
+.question{margin-top:18px;padding-top:18px;border-top:1px solid #e6eaf1}
+.question h3{font-size:19px;margin-bottom:12px}
+.opts{display:flex;gap:10px;flex-wrap:wrap}
+.opt{background:#fff;border:1px solid #c9d3e2;border-radius:12px;padding:11px 16px;font-size:20px;font-weight:700;cursor:pointer;min-width:88px}
+.opt:hover{border-color:#4664b3}
+.opt.correct{background:#edf8f0;border:2px solid #4f9966}
+.opt.wrong{background:#fff0f0;border:2px solid #cb7070}
+.feedback{display:none;margin-top:10px;font-weight:700}
+.feedback.show{display:block}
+.note{margin-top:18px;background:#fff7df;border-radius:14px;padding:14px 16px}
+.controls{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer;font-size:16px}
+.primary{background:#4664b3;color:white}
+.secondary{background:#e9edf5;color:#263855}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.status{text-align:right;color:#965e19;font-weight:700;font-size:14px;margin-top:8px}
+.scorebox{text-align:center;padding:24px}
+.score{font-size:58px;font-weight:900}
+.small{font-size:14px;color:#78849a}
+.pair{display:flex;justify-content:center;align-items:center;gap:15px;font-size:46px;font-weight:800;margin:20px 0}
+.arrow{font-size:30px;color:#718099}
+@media(max-width:720px){.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:32px}.card{padding:20px}.big{font-size:48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>🧩 Hanzi Combination Game</h1>
+    <p>Recognize basic Hanzi, build new characters, and make new words.</p>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <main class="card" id="card"></main>
+  <div class="controls">
+    <button class="btn secondary" id="back">← Back</button>
+    <button class="btn primary" id="next">Next →</button>
+  </div>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+const basics = [
+["火","fire"],["人","person"],["木","tree / wood"],["日","sun / day"],
+["月","moon / month"],["口","mouth"],["门","door"],["山","mountain"],
+["女","woman / female"],["子","child"],["马","horse"],["王","king"],
+["家","home / family"],["水","water"],["大","big"]
+];
+
+function q(text, options, correctIndex, feedback){
+  const opts = options.map((o,i)=>`<button class="opt" data-ok="${i===correctIndex?1:0}">${o}</button>`).join("");
+  return `<div class="question">
+    <h3>${text}</h3>
+    <div class="opts">${opts}</div>
+    <div class="feedback">${feedback}</div>
+  </div>`;
+}
+
+const screens = [
+{
+  title:"Level 1 — Meet the Building Blocks",
+  sub:"These are basic Hanzi you will use in the game.",
+  body:`<div class="grid">${basics.map(x=>`<div class="tile"><div class="hz">${x[0]}</div><div class="en">${x[1]}</div></div>`).join("")}</div>
+  <div class="note"><b>Big idea:</b> Some Hanzi can stand alone. They can also combine with other parts to build a new character or a new word.</div>`
+},
+{
+  title:"Level 2 — Build ONE New Character",
+  sub:"Two parts can combine inside one square to make one new Hanzi.",
+  body:`
+  <div class="pair"><span>亻</span><span>+</span><span>木</span><span class="arrow">→</span><span>休</span></div>
+  ${q("亻 + 木 makes which ONE character?",["休","林","人"],0,"✓ 休")}
+  ${q("日 + 月 makes which ONE character?",["明","问","好"],0,"✓ 明")}
+  ${q("门 + 口 makes which ONE character?",["问","明","妈"],0,"✓ 问")}
+  `
+},
+{
+  title:"Level 3 — More Character Building",
+  sub:"Look at the components. Predict the new character.",
+  body:`
+  ${q("女 + 子 → ?",["好","妈","家"],0,"✓ 好")}
+  ${q("女 + 马 → ?",["妈","好","女"],0,"✓ 妈")}
+  ${q("Which one is ONE character made from components?",["休","火山","家人"],0,"✓ 休 is one character.")}
+  `
+},
+{
+  title:"Level 4 — Repeat to Build Meaning",
+  sub:"The same Hanzi can repeat to form a new character or word.",
+  body:`
+  <div class="pair"><span>木</span><span>+</span><span>木</span><span class="arrow">→</span><span>林</span></div>
+  <div class="pair"><span>木</span><span>+</span><span>木</span><span>+</span><span>木</span><span class="arrow">→</span><span>森</span></div>
+  ${q("木 + 木 makes…",["林","森","休"],0,"✓ 林")}
+  ${q("木 + 木 + 木 makes…",["森","林","木"],0,"✓ 森")}
+  `
+},
+{
+  title:"Level 5 — Two Hanzi Make a WORD",
+  sub:"Now each Hanzi stays separate. Together they form a new word.",
+  body:`
+  ${q("火 + 山 → ?",["火山","问","妈"],0,"✓ 火山 = volcano")}
+  ${q("王 + 子 → ?",["王子","女王","大人"],0,"✓ 王子 = prince")}
+  ${q("女 + 王 → ?",["女王","王子","家人"],0,"✓ 女王 = queen")}
+  ${q("大 + 人 → ?",["大人","大家","家人"],0,"✓ 大人 = adult")}
+  `
+},
+{
+  title:"Level 6 — Word Builder",
+  sub:"Choose the correct word made from the Hanzi.",
+  body:`
+  ${q("家 + 人 → ?",["家人","大家","大人"],0,"✓ 家人 = family member(s)")}
+  ${q("大 + 家 → ?",["大家","家人","大人"],0,"✓ 大家 = everyone")}
+  ${q("小 + 王子 → ?",["小王子","王子","女王"],0,"✓ 小王子 = little prince")}
+  `
+},
+{
+  title:"Level 7 — Character or Word?",
+  sub:"This is the key distinction.",
+  body:`
+  ${q("Which example makes ONE new character?",["女 + 马 → 妈","火 + 山 → 火山","王 + 子 → 王子"],0,"✓ 妈 is one Hanzi built from components.")}
+  ${q("Which example makes a WORD from separate Hanzi?",["日 + 月 → 明","女 + 子 → 好","火 + 山 → 火山"],2,"✓ 火山 is a word made of two characters.")}
+  ${q("Which one is a two-character word?",["休","明","家人"],2,"✓ 家人")}
+  `
+},
+{
+  title:"Final Challenge",
+  sub:"Mix everything together.",
+  body:`
+  ${q("Which one means 'bright'?",["明","问","休"],0,"✓ 明")}
+  ${q("Which one means 'to ask'?",["问","好","妈"],0,"✓ 问")}
+  ${q("Which one means 'forest'?",["森林","火山","大家"],0,"✓ 森林")}
+  ${q("Which one means 'everyone'?",["大家","家人","大人"],0,"✓ 大家")}
+  ${q("Which one is built from 女 + 马?",["妈","好","女王"],0,"✓ 妈")}
+  ${q("Which one is made of 王 + 子?",["王子","女王","小王子"],0,"✓ 王子")}
+  `
+},
+{
+  title:"Game Complete 🎉",
+  sub:"You can recognize, build, and combine Hanzi.",
+  body:`<div class="scorebox">
+    <div class="small">YOUR SCORE</div>
+    <div class="score" id="finalScore"></div>
+    <p id="scoreMsg"></p>
+    <div class="note"><b>Remember:</b><br><br>
+    COMPONENTS → ONE CHARACTER: 女 + 马 → 妈<br><br>
+    CHARACTERS → A WORD: 火 + 山 → 火山
+    </div>
+  </div>`
+}
+];
+
+let current = 0;
+let totalCorrect = 0;
+let totalQuestions = 0;
+const answered = screens.map(()=>new Set());
+const correctSeen = screens.map(()=>new Set());
+
+const card = document.getElementById("card");
+const bar = document.getElementById("bar");
+const next = document.getElementById("next");
+const back = document.getElementById("back");
+const status = document.getElementById("status");
+
+function render(){
+  const s = screens[current];
+  card.innerHTML = `<span class="badge">STAGE ${current+1} OF ${screens.length}</span>
+  <h2>${s.title}</h2><div class="sub">${s.sub}</div>${s.body}`;
+  bar.style.width = ((current+1)/screens.length*100)+"%";
+  back.disabled = current===0;
+  next.textContent = current===screens.length-1 ? "Play Again ↻" : "Next →";
+
+  const questions = [...card.querySelectorAll(".question")];
+  questions.forEach((question, qi)=>{
+    question.querySelectorAll(".opt").forEach(btn=>{
+      btn.onclick=()=>{
+        question.querySelectorAll(".opt").forEach(b=>b.classList.remove("correct","wrong"));
+        const ok = btn.dataset.ok==="1";
+        btn.classList.add(ok ? "correct" : "wrong");
+        question.querySelector(".feedback").classList.add("show");
+
+        if(!answered[current].has(qi)){
+          answered[current].add(qi);
+          totalQuestions++;
+          if(ok){
+            totalCorrect++;
+            correctSeen[current].add(qi);
+          }
+        } else if(ok && !correctSeen[current].has(qi)){
+          totalCorrect++;
+          correctSeen[current].add(qi);
+        }
+        updateGate();
+      };
+    });
+  });
+
+  if(current===screens.length-1){
+    const fs=document.getElementById("finalScore");
+    const msg=document.getElementById("scoreMsg");
+    if(fs){
+      fs.textContent = `${totalCorrect} / ${totalQuestions}`;
+      const pct = totalQuestions ? totalCorrect/totalQuestions : 0;
+      msg.textContent = pct>=0.9 ? "Excellent pattern recognition!" :
+                        pct>=0.7 ? "Strong work — review a few combinations." :
+                        "Good start — replay and look closely at the building blocks.";
+    }
+  }
+
+  updateGate();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function updateGate(){
+  const qs=[...card.querySelectorAll(".question")];
+  const complete = qs.length===0 || answered[current].size===qs.length;
+  next.disabled = !complete;
+  status.textContent = !complete ? `Answer all questions before continuing. (${answered[current].size}/${qs.length})` : "";
+}
+
+next.onclick=()=>{
+  if(next.disabled) return;
+  if(current===screens.length-1){
+    current=0; totalCorrect=0; totalQuestions=0;
+    for(let i=0;i<answered.length;i++){answered[i].clear();correctSeen[i].clear();}
+  }else current++;
+  render();
+};
+back.onclick=()=>{if(current>0){current--;render();}};
+render();
+</script>
+</body>
+</html>
