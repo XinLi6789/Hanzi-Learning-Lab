@@ -82,8 +82,24 @@ const screens = [
 {
   title:"Level 1 — Meet the Building Blocks",
   sub:"These are basic Hanzi you will use in the game.",
-  body:`<div class="grid">${basics.map(x=>`<div class="tile"><div class="hz">${x[0]}</div><div class="en">${x[1]}</div></div>`).join("")}</div>
-  <div class="note"><b>Big idea:</b> Some Hanzi can stand alone. They can also combine with other parts to build a new character or a new word.</div>`
+  body:`
+  <div class="note"><b>First, prove that you know the basic building blocks.</b> Choose the English meaning of each Hanzi.</div>
+  ${q("What does 火 mean?",["fire","water","mountain"],0,"✓ 火 = fire")}
+  ${q("What does 人 mean?",["person","mouth","king"],0,"✓ 人 = person")}
+  ${q("What does 木 mean?",["tree / wood","moon","door"],0,"✓ 木 = tree / wood")}
+  ${q("What does 日 mean?",["sun / day","moon / month","water"],0,"✓ 日 = sun / day")}
+  ${q("What does 月 mean?",["moon / month","sun / day","mountain"],0,"✓ 月 = moon / month")}
+  ${q("What does 口 mean?",["mouth","door","person"],0,"✓ 口 = mouth")}
+  ${q("What does 门 mean?",["door","mouth","home"],0,"✓ 门 = door")}
+  ${q("What does 山 mean?",["mountain","water","tree"],0,"✓ 山 = mountain")}
+  ${q("What does 女 mean?",["woman / female","child","king"],0,"✓ 女 = woman / female")}
+  ${q("What does 子 mean?",["child","person","horse"],0,"✓ 子 = child")}
+  ${q("What does 马 mean?",["horse","king","fire"],0,"✓ 马 = horse")}
+  ${q("What does 王 mean?",["king","big","home"],0,"✓ 王 = king")}
+  ${q("What does 家 mean?",["home / family","door","person"],0,"✓ 家 = home / family")}
+  ${q("What does 水 mean?",["water","fire","mountain"],0,"✓ 水 = water")}
+  ${q("What does 大 mean?",["big","small","person"],0,"✓ 大 = big")}
+  <div class="note"><b>Ready to build:</b> Once you know these basic Hanzi, you can use them to discover new characters and words.</div>`
 },
 {
   title:"Level 2 — Build ONE New Character",
