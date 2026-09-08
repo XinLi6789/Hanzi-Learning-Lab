@@ -1,268 +1,33 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hanzi Combination Game</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hanzi Combination Game</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f7fb;color:#18243a}
-.wrap{max-width:980px;margin:auto;padding:24px}
-.hero{text-align:center;margin-bottom:18px}
-.hero h1{font-size:40px;margin:8px 0}
-.hero p{font-size:18px;color:#65728a;margin:6px 0}
-.progress{height:10px;background:#e6ebf3;border-radius:99px;overflow:hidden;margin:18px 0}
-.bar{height:100%;width:0;background:#4664b3;transition:.25s}
-.card{background:#fff;border:1px solid #dce3ee;border-radius:24px;padding:28px;box-shadow:0 8px 24px rgba(36,54,88,.06);min-height:520px}
-.badge{display:inline-block;background:#edf1fb;color:#4664b3;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:800;letter-spacing:.04em}
-h2{font-size:30px;margin:16px 0 6px}
-.sub{color:#6c7890;font-size:17px}
-.big{font-size:58px;font-weight:800;text-align:center;margin:24px 0}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
-.tile{background:#fafbfe;border:1px solid #dfe5ef;border-radius:16px;padding:15px;text-align:center}
-.hz{font-size:38px;font-weight:800;margin-bottom:4px}
-.en{font-size:14px;color:#718099}
-.question{margin-top:18px;padding-top:18px;border-top:1px solid #e6eaf1}
-.question h3{font-size:19px;margin-bottom:12px}
-.opts{display:flex;gap:10px;flex-wrap:wrap}
-.opt{background:#fff;border:1px solid #c9d3e2;border-radius:12px;padding:11px 16px;font-size:20px;font-weight:700;cursor:pointer;min-width:88px}
-.opt:hover{border-color:#4664b3}
-.opt.correct{background:#edf8f0;border:2px solid #4f9966}
-.opt.wrong{background:#fff0f0;border:2px solid #cb7070}
-.feedback{display:none;margin-top:10px;font-weight:700}
-.feedback.show{display:block}
-.note{margin-top:18px;background:#fff7df;border-radius:14px;padding:14px 16px}
-.controls{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
-.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer;font-size:16px}
-.primary{background:#4664b3;color:white}
-.secondary{background:#e9edf5;color:#263855}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.status{text-align:right;color:#965e19;font-weight:700;font-size:14px;margin-top:8px}
-.scorebox{text-align:center;padding:24px}
-.score{font-size:58px;font-weight:900}
-.small{font-size:14px;color:#78849a}
-.pair{display:flex;justify-content:center;align-items:center;gap:15px;font-size:46px;font-weight:800;margin:20px 0}
-.arrow{font-size:30px;color:#718099}
-@media(max-width:720px){.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:32px}.card{padding:20px}.big{font-size:48px}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="hero">
-    <h1>🧩 Hanzi Combination Game</h1>
-    <p>Recognize basic Hanzi, build new characters, and make new words.</p>
-  </div>
-  <div class="progress"><div class="bar" id="bar"></div></div>
-  <main class="card" id="card"></main>
-  <div class="controls">
-    <button class="btn secondary" id="back">← Back</button>
-    <button class="btn primary" id="next">Next →</button>
-  </div>
-  <div class="status" id="status"></div>
-</div>
-
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f7fb;color:#18243a}.wrap{max-width:980px;margin:auto;padding:24px}.hero{text-align:center}.hero h1{font-size:40px;margin:8px}.hero p,.sub{color:#65728a;font-size:18px}.progress{height:10px;background:#e6ebf3;border-radius:99px;overflow:hidden;margin:18px 0}.bar{height:100%;background:#4664b3;transition:.25s}.card{background:#fff;border:1px solid #dce3ee;border-radius:24px;padding:28px;box-shadow:0 8px 24px #2436580f;min-height:500px}.badge{display:inline-block;background:#edf1fb;color:#4664b3;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:800}h2{font-size:30px;margin:16px 0 6px}.note{margin:18px 0;background:#fff7df;border-radius:14px;padding:14px 16px}.question{margin-top:18px;padding-top:18px;border-top:1px solid #e6eaf1}.question h3{font-size:19px}.hanzi-q{font-size:34px}.opts{display:flex;gap:10px;flex-wrap:wrap}.opt{background:#fff;border:1px solid #c9d3e2;border-radius:12px;padding:11px 16px;font-size:18px;font-weight:700;cursor:pointer}.opt.correct{background:#edf8f0;border:2px solid #4f9966}.opt.wrong{background:#fff0f0;border:2px solid #cb7070}.feedback{display:none;margin-top:10px;font-weight:800}.feedback.show{display:block}.feedback.good{color:#35764a}.feedback.try{color:#a54d4d}.controls{display:flex;justify-content:space-between;margin-top:18px}.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;font-size:16px;cursor:pointer}.primary{background:#4664b3;color:#fff}.secondary{background:#e9edf5}.btn:disabled{opacity:.45;cursor:not-allowed}.status{text-align:right;color:#965e19;font-weight:700;margin-top:8px}.pair{font-size:40px;font-weight:800;text-align:center;margin:18px}.scorebox{text-align:center;padding:24px}.score{font-size:58px;font-weight:900}.small{font-size:14px;color:#78849a}@media(max-width:720px){.hero h1{font-size:32px}.card{padding:20px}}
+</style></head><body><div class="wrap"><div class="hero"><h1>🧩 Hanzi Combination Game</h1><p>Recognize basic Hanzi, build new characters, and make new words.</p></div><div class="progress"><div class="bar" id="bar"></div></div><main class="card" id="card"></main><div class="controls"><button class="btn secondary" id="back">← Back</button><button class="btn primary" id="next">Next →</button></div><div class="status" id="status"></div></div>
 <script>
-const basics = [
-["火","fire"],["人","person"],["木","tree / wood"],["日","sun / day"],
-["月","moon / month"],["口","mouth"],["门","door"],["山","mountain"],
-["女","woman / female"],["子","child"],["马","horse"],["王","king"],
-["家","home / family"],["水","water"],["大","big"]
-];
-
-function q(text, options, correctIndex, feedback){
-  const opts = options.map((o,i)=>`<button class="opt" data-ok="${i===correctIndex?1:0}">${o}</button>`).join("");
-  return `<div class="question">
-    <h3>${text}</h3>
-    <div class="opts">${opts}</div>
-    <div class="feedback">${feedback}</div>
-  </div>`;
-}
-
-const screens = [
-{
-  title:"Level 1 — Meet the Building Blocks",
-  sub:"These are basic Hanzi you will use in the game.",
-  body:`
-  <div class="note"><b>First, prove that you know the basic building blocks.</b> Choose the English meaning of each Hanzi.</div>
-  ${q("What does 火 mean?",["fire","water","mountain"],0,"✓ 火 = fire")}
-  ${q("What does 人 mean?",["person","mouth","king"],0,"✓ 人 = person")}
-  ${q("What does 木 mean?",["tree / wood","moon","door"],0,"✓ 木 = tree / wood")}
-  ${q("What does 日 mean?",["sun / day","moon / month","water"],0,"✓ 日 = sun / day")}
-  ${q("What does 月 mean?",["moon / month","sun / day","mountain"],0,"✓ 月 = moon / month")}
-  ${q("What does 口 mean?",["mouth","door","person"],0,"✓ 口 = mouth")}
-  ${q("What does 门 mean?",["door","mouth","home"],0,"✓ 门 = door")}
-  ${q("What does 山 mean?",["mountain","water","tree"],0,"✓ 山 = mountain")}
-  ${q("What does 女 mean?",["woman / female","child","king"],0,"✓ 女 = woman / female")}
-  ${q("What does 子 mean?",["child","person","horse"],0,"✓ 子 = child")}
-  ${q("What does 马 mean?",["horse","king","fire"],0,"✓ 马 = horse")}
-  ${q("What does 王 mean?",["king","big","home"],0,"✓ 王 = king")}
-  ${q("What does 家 mean?",["home / family","door","person"],0,"✓ 家 = home / family")}
-  ${q("What does 水 mean?",["water","fire","mountain"],0,"✓ 水 = water")}
-  ${q("What does 大 mean?",["big","small","person"],0,"✓ 大 = big")}
-  <div class="note"><b>Ready to build:</b> Once you know these basic Hanzi, you can use them to discover new characters and words.</div>`
-},
-{
-  title:"Level 2 — Build ONE New Character",
-  sub:"Two parts can combine inside one square to make one new Hanzi.",
-  body:`
-  <div class="pair"><span>亻</span><span>+</span><span>木</span><span class="arrow">→</span><span>休</span></div>
-  ${q("亻 + 木 makes which ONE character?",["休","林","人"],0,"✓ 休")}
-  ${q("日 + 月 makes which ONE character?",["明","问","好"],0,"✓ 明")}
-  ${q("门 + 口 makes which ONE character?",["问","明","妈"],0,"✓ 问")}
-  `
-},
-{
-  title:"Level 3 — More Character Building",
-  sub:"Look at the components. Predict the new character.",
-  body:`
-  ${q("女 + 子 → ?",["好","妈","家"],0,"✓ 好")}
-  ${q("女 + 马 → ?",["妈","好","女"],0,"✓ 妈")}
-  ${q("Which one is ONE character made from components?",["休","火山","家人"],0,"✓ 休 is one character.")}
-  `
-},
-{
-  title:"Level 4 — Repeat to Build Meaning",
-  sub:"The same Hanzi can repeat to form a new character or word.",
-  body:`
-  <div class="pair"><span>木</span><span>+</span><span>木</span><span class="arrow">→</span><span>林</span></div>
-  <div class="pair"><span>木</span><span>+</span><span>木</span><span>+</span><span>木</span><span class="arrow">→</span><span>森</span></div>
-  ${q("木 + 木 makes…",["林","森","休"],0,"✓ 林")}
-  ${q("木 + 木 + 木 makes…",["森","林","木"],0,"✓ 森")}
-  `
-},
-{
-  title:"Level 5 — Two Hanzi Make a WORD",
-  sub:"Now each Hanzi stays separate. Together they form a new word.",
-  body:`
-  ${q("火 + 山 → ?",["火山","问","妈"],0,"✓ 火山 = volcano")}
-  ${q("王 + 子 → ?",["王子","女王","大人"],0,"✓ 王子 = prince")}
-  ${q("女 + 王 → ?",["女王","王子","家人"],0,"✓ 女王 = queen")}
-  ${q("大 + 人 → ?",["大人","大家","家人"],0,"✓ 大人 = adult")}
-  `
-},
-{
-  title:"Level 6 — Word Builder",
-  sub:"Choose the correct word made from the Hanzi.",
-  body:`
-  ${q("家 + 人 → ?",["家人","大家","大人"],0,"✓ 家人 = family member(s)")}
-  ${q("大 + 家 → ?",["大家","家人","大人"],0,"✓ 大家 = everyone")}
-  ${q("小 + 王子 → ?",["小王子","王子","女王"],0,"✓ 小王子 = little prince")}
-  `
-},
-{
-  title:"Level 7 — Character or Word?",
-  sub:"This is the key distinction.",
-  body:`
-  ${q("Which example makes ONE new character?",["女 + 马 → 妈","火 + 山 → 火山","王 + 子 → 王子"],0,"✓ 妈 is one Hanzi built from components.")}
-  ${q("Which example makes a WORD from separate Hanzi?",["日 + 月 → 明","女 + 子 → 好","火 + 山 → 火山"],2,"✓ 火山 is a word made of two characters.")}
-  ${q("Which one is a two-character word?",["休","明","家人"],2,"✓ 家人")}
-  `
-},
-{
-  title:"Final Challenge",
-  sub:"Mix everything together.",
-  body:`
-  ${q("Which one means 'bright'?",["明","问","休"],0,"✓ 明")}
-  ${q("Which one means 'to ask'?",["问","好","妈"],0,"✓ 问")}
-  ${q("Which one means 'forest'?",["森林","火山","大家"],0,"✓ 森林")}
-  ${q("Which one means 'everyone'?",["大家","家人","大人"],0,"✓ 大家")}
-  ${q("Which one is built from 女 + 马?",["妈","好","女王"],0,"✓ 妈")}
-  ${q("Which one is made of 王 + 子?",["王子","女王","小王子"],0,"✓ 王子")}
-  `
-},
-{
-  title:"Game Complete 🎉",
-  sub:"You can recognize, build, and combine Hanzi.",
-  body:`<div class="scorebox">
-    <div class="small">YOUR SCORE</div>
-    <div class="score" id="finalScore"></div>
-    <p id="scoreMsg"></p>
-    <div class="note"><b>Remember:</b><br><br>
-    COMPONENTS → ONE CHARACTER: 女 + 马 → 妈<br><br>
-    CHARACTERS → A WORD: 火 + 山 → 火山
-    </div>
-  </div>`
-}
-];
-
-let current = 0;
-let totalCorrect = 0;
-let totalQuestions = 0;
-const answered = screens.map(()=>new Set());
-const correctSeen = screens.map(()=>new Set());
-
-const card = document.getElementById("card");
-const bar = document.getElementById("bar");
-const next = document.getElementById("next");
-const back = document.getElementById("back");
-const status = document.getElementById("status");
-
+const screens=[{title:'Level 1A — Building Blocks',sub:'Recognize 5 basic Hanzi before moving on.',body:'<div class="note"><b>Choose the English meaning of each Hanzi.</b> The meaning appears only after you answer.</div><div class="question"><h3>What does <span class=\'hanzi-q\'>火</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">fire</button><button class="opt" data-ok="0">water</button><button class="opt" data-ok="0">mountain</button></div>\n    <div class="feedback" data-success="Correct! 火 = fire"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>人</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">person</button><button class="opt" data-ok="0">mouth</button><button class="opt" data-ok="0">king</button></div>\n    <div class="feedback" data-success="Correct! 人 = person"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>木</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">tree / wood</button><button class="opt" data-ok="0">moon</button><button class="opt" data-ok="0">door</button></div>\n    <div class="feedback" data-success="Correct! 木 = tree / wood"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>日</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">sun / day</button><button class="opt" data-ok="0">moon / month</button><button class="opt" data-ok="0">water</button></div>\n    <div class="feedback" data-success="Correct! 日 = sun / day"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>月</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">moon / month</button><button class="opt" data-ok="0">sun / day</button><button class="opt" data-ok="0">mountain</button></div>\n    <div class="feedback" data-success="Correct! 月 = moon / month"></div></div>'},
+{title:'Level 1B — Building Blocks',sub:'Recognize 5 basic Hanzi before moving on.',body:'<div class="note"><b>Choose the English meaning of each Hanzi.</b> The meaning appears only after you answer.</div><div class="question"><h3>What does <span class=\'hanzi-q\'>口</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">mouth</button><button class="opt" data-ok="0">door</button><button class="opt" data-ok="0">person</button></div>\n    <div class="feedback" data-success="Correct! 口 = mouth"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>门</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">door</button><button class="opt" data-ok="0">mouth</button><button class="opt" data-ok="0">home / family</button></div>\n    <div class="feedback" data-success="Correct! 门 = door"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>山</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">mountain</button><button class="opt" data-ok="0">water</button><button class="opt" data-ok="0">tree / wood</button></div>\n    <div class="feedback" data-success="Correct! 山 = mountain"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>女</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">woman / female</button><button class="opt" data-ok="0">child</button><button class="opt" data-ok="0">king</button></div>\n    <div class="feedback" data-success="Correct! 女 = woman / female"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>子</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">child</button><button class="opt" data-ok="0">person</button><button class="opt" data-ok="0">horse</button></div>\n    <div class="feedback" data-success="Correct! 子 = child"></div></div>'},
+{title:'Level 1C — Building Blocks',sub:'Recognize 5 basic Hanzi before moving on.',body:'<div class="note"><b>Choose the English meaning of each Hanzi.</b> The meaning appears only after you answer.</div><div class="question"><h3>What does <span class=\'hanzi-q\'>马</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">horse</button><button class="opt" data-ok="0">king</button><button class="opt" data-ok="0">fire</button></div>\n    <div class="feedback" data-success="Correct! 马 = horse"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>王</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">king</button><button class="opt" data-ok="0">big</button><button class="opt" data-ok="0">home / family</button></div>\n    <div class="feedback" data-success="Correct! 王 = king"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>家</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">home / family</button><button class="opt" data-ok="0">door</button><button class="opt" data-ok="0">person</button></div>\n    <div class="feedback" data-success="Correct! 家 = home / family"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>水</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">water</button><button class="opt" data-ok="0">fire</button><button class="opt" data-ok="0">mountain</button></div>\n    <div class="feedback" data-success="Correct! 水 = water"></div></div><div class="question"><h3>What does <span class=\'hanzi-q\'>大</span> mean?</h3><div class="opts"><button class="opt" data-ok="1">big</button><button class="opt" data-ok="0">small</button><button class="opt" data-ok="0">person</button></div>\n    <div class="feedback" data-success="Correct! 大 = big"></div></div>'},
+{title:'Level 2 — Build ONE New Character',sub:'Two parts can combine inside one square to make one new Hanzi.',body:'<div class="pair">亻 + 木 <span>→</span> 休</div><div class="question"><h3>亻 + 木 makes which ONE character?</h3><div class="opts"><button class="opt" data-ok="1">休</button><button class="opt" data-ok="0">林</button><button class="opt" data-ok="0">人</button></div>\n    <div class="feedback" data-success="Correct! 亻 + 木 → 休"></div></div><div class="question"><h3>日 + 月 makes which ONE character?</h3><div class="opts"><button class="opt" data-ok="1">明</button><button class="opt" data-ok="0">问</button><button class="opt" data-ok="0">好</button></div>\n    <div class="feedback" data-success="Correct! 日 + 月 → 明"></div></div><div class="question"><h3>门 + 口 makes which ONE character?</h3><div class="opts"><button class="opt" data-ok="1">问</button><button class="opt" data-ok="0">明</button><button class="opt" data-ok="0">妈</button></div>\n    <div class="feedback" data-success="Correct! 门 + 口 → 问"></div></div>'},
+{title:'Level 3 — More Character Building',sub:'Look at the components. Predict the new character.',body:'<div class="question"><h3>女 + 子 → ?</h3><div class="opts"><button class="opt" data-ok="1">好</button><button class="opt" data-ok="0">妈</button><button class="opt" data-ok="0">家</button></div>\n    <div class="feedback" data-success="Correct! 女 + 子 → 好"></div></div><div class="question"><h3>女 + 马 → ?</h3><div class="opts"><button class="opt" data-ok="1">妈</button><button class="opt" data-ok="0">好</button><button class="opt" data-ok="0">女</button></div>\n    <div class="feedback" data-success="Correct! 女 + 马 → 妈"></div></div><div class="question"><h3>Which one is ONE character made from components?</h3><div class="opts"><button class="opt" data-ok="1">休</button><button class="opt" data-ok="0">火山</button><button class="opt" data-ok="0">家人</button></div>\n    <div class="feedback" data-success="Correct! 休 is one character."></div></div>'},
+{title:'Level 4 — Repeat to Build Meaning',sub:'The same Hanzi can repeat to form a new character.',body:'<div class="pair">木 + 木 → 林</div><div class="pair">木 + 木 + 木 → 森</div><div class="question"><h3>木 + 木 makes…</h3><div class="opts"><button class="opt" data-ok="1">林</button><button class="opt" data-ok="0">森</button><button class="opt" data-ok="0">休</button></div>\n    <div class="feedback" data-success="Correct! 木 + 木 → 林"></div></div><div class="question"><h3>木 + 木 + 木 makes…</h3><div class="opts"><button class="opt" data-ok="1">森</button><button class="opt" data-ok="0">林</button><button class="opt" data-ok="0">木</button></div>\n    <div class="feedback" data-success="Correct! 木 + 木 + 木 → 森"></div></div>'},
+{title:'Level 5 — Two Hanzi Make a WORD',sub:'Each Hanzi stays separate. Together they form a word.',body:'<div class="question"><h3>火 + 山 → ?</h3><div class="opts"><button class="opt" data-ok="1">火山</button><button class="opt" data-ok="0">问</button><button class="opt" data-ok="0">妈</button></div>\n    <div class="feedback" data-success="Correct! 火山 = volcano"></div></div><div class="question"><h3>王 + 子 → ?</h3><div class="opts"><button class="opt" data-ok="1">王子</button><button class="opt" data-ok="0">女王</button><button class="opt" data-ok="0">大人</button></div>\n    <div class="feedback" data-success="Correct! 王子 = prince"></div></div><div class="question"><h3>女 + 王 → ?</h3><div class="opts"><button class="opt" data-ok="1">女王</button><button class="opt" data-ok="0">王子</button><button class="opt" data-ok="0">家人</button></div>\n    <div class="feedback" data-success="Correct! 女王 = queen"></div></div><div class="question"><h3>大 + 人 → ?</h3><div class="opts"><button class="opt" data-ok="1">大人</button><button class="opt" data-ok="0">大家</button><button class="opt" data-ok="0">家人</button></div>\n    <div class="feedback" data-success="Correct! 大人 = adult"></div></div>'},
+{title:'Level 6 — Word Builder',sub:'Choose the correct word made from the Hanzi.',body:'<div class="question"><h3>家 + 人 → ?</h3><div class="opts"><button class="opt" data-ok="1">家人</button><button class="opt" data-ok="0">大家</button><button class="opt" data-ok="0">大人</button></div>\n    <div class="feedback" data-success="Correct! 家人 = family member(s)"></div></div><div class="question"><h3>大 + 家 → ?</h3><div class="opts"><button class="opt" data-ok="1">大家</button><button class="opt" data-ok="0">家人</button><button class="opt" data-ok="0">大人</button></div>\n    <div class="feedback" data-success="Correct! 大家 = everyone"></div></div><div class="question"><h3>小 + 王子 → ?</h3><div class="opts"><button class="opt" data-ok="1">小王子</button><button class="opt" data-ok="0">王子</button><button class="opt" data-ok="0">女王</button></div>\n    <div class="feedback" data-success="Correct! 小王子 = little prince"></div></div>'},
+{title:'Level 7 — Character or Word?',sub:'Notice the difference between building one character and building a word.',body:'<div class="question"><h3>Which example makes ONE new character?</h3><div class="opts"><button class="opt" data-ok="1">女 + 马 → 妈</button><button class="opt" data-ok="0">火 + 山 → 火山</button><button class="opt" data-ok="0">王 + 子 → 王子</button></div>\n    <div class="feedback" data-success="Correct! 妈 is one Hanzi built from components."></div></div><div class="question"><h3>Which example makes a WORD from separate Hanzi?</h3><div class="opts"><button class="opt" data-ok="0">日 + 月 → 明</button><button class="opt" data-ok="0">女 + 子 → 好</button><button class="opt" data-ok="1">火 + 山 → 火山</button></div>\n    <div class="feedback" data-success="Correct! 火山 is a two-character word."></div></div><div class="question"><h3>Which one is a two-character word?</h3><div class="opts"><button class="opt" data-ok="0">休</button><button class="opt" data-ok="0">明</button><button class="opt" data-ok="1">家人</button></div>\n    <div class="feedback" data-success="Correct! 家人 is a two-character word."></div></div>'},
+{title:'Final Challenge',sub:'Mix everything together.',body:'<div class="question"><h3>Which one means \'bright\'?</h3><div class="opts"><button class="opt" data-ok="1">明</button><button class="opt" data-ok="0">问</button><button class="opt" data-ok="0">休</button></div>\n    <div class="feedback" data-success="Correct! 明 = bright"></div></div><div class="question"><h3>Which one means \'to ask\'?</h3><div class="opts"><button class="opt" data-ok="1">问</button><button class="opt" data-ok="0">好</button><button class="opt" data-ok="0">妈</button></div>\n    <div class="feedback" data-success="Correct! 问 = to ask"></div></div><div class="question"><h3>Which one means \'forest\'?</h3><div class="opts"><button class="opt" data-ok="1">森林</button><button class="opt" data-ok="0">火山</button><button class="opt" data-ok="0">大家</button></div>\n    <div class="feedback" data-success="Correct! 森林 = forest"></div></div><div class="question"><h3>Which one means \'everyone\'?</h3><div class="opts"><button class="opt" data-ok="1">大家</button><button class="opt" data-ok="0">家人</button><button class="opt" data-ok="0">大人</button></div>\n    <div class="feedback" data-success="Correct! 大家 = everyone"></div></div><div class="question"><h3>Which one is built from 女 + 马?</h3><div class="opts"><button class="opt" data-ok="1">妈</button><button class="opt" data-ok="0">好</button><button class="opt" data-ok="0">女王</button></div>\n    <div class="feedback" data-success="Correct! 女 + 马 → 妈"></div></div><div class="question"><h3>Which one is made of 王 + 子?</h3><div class="opts"><button class="opt" data-ok="1">王子</button><button class="opt" data-ok="0">女王</button><button class="opt" data-ok="0">小王子</button></div>\n    <div class="feedback" data-success="Correct! 王 + 子 → 王子"></div></div>'},
+{title:'Game Complete 🎉',sub:'You can recognize, build, and combine Hanzi.',body:'<div class="scorebox"><div class="small">QUESTIONS MASTERED</div><div class="score" id="finalScore"></div><p>Great work noticing how Hanzi can combine.</p><div class="note"><b>Remember:</b><br><br>COMPONENTS → ONE CHARACTER: 女 + 马 → 妈<br><br>CHARACTERS → A WORD: 火 + 山 → 火山</div></div>'}];
+let current=0; const answered=screens.map(()=>new Set()); const mastered=screens.map(()=>new Set());
+const card=document.getElementById("card"),bar=document.getElementById("bar"),next=document.getElementById("next"),back=document.getElementById("back"),status=document.getElementById("status");
 function render(){
-  const s = screens[current];
-  card.innerHTML = `<span class="badge">STAGE ${current+1} OF ${screens.length}</span>
-  <h2>${s.title}</h2><div class="sub">${s.sub}</div>${s.body}`;
-  bar.style.width = ((current+1)/screens.length*100)+"%";
-  back.disabled = current===0;
-  next.textContent = current===screens.length-1 ? "Play Again ↻" : "Next →";
-
-  const questions = [...card.querySelectorAll(".question")];
-  questions.forEach((question, qi)=>{
-    question.querySelectorAll(".opt").forEach(btn=>{
-      btn.onclick=()=>{
-        question.querySelectorAll(".opt").forEach(b=>b.classList.remove("correct","wrong"));
-        const ok = btn.dataset.ok==="1";
-        btn.classList.add(ok ? "correct" : "wrong");
-        question.querySelector(".feedback").classList.add("show");
-
-        if(!answered[current].has(qi)){
-          answered[current].add(qi);
-          totalQuestions++;
-          if(ok){
-            totalCorrect++;
-            correctSeen[current].add(qi);
-          }
-        } else if(ok && !correctSeen[current].has(qi)){
-          totalCorrect++;
-          correctSeen[current].add(qi);
-        }
-        updateGate();
-      };
-    });
-  });
-
-  if(current===screens.length-1){
-    const fs=document.getElementById("finalScore");
-    const msg=document.getElementById("scoreMsg");
-    if(fs){
-      fs.textContent = `${totalCorrect} / ${totalQuestions}`;
-      const pct = totalQuestions ? totalCorrect/totalQuestions : 0;
-      msg.textContent = pct>=0.9 ? "Excellent pattern recognition!" :
-                        pct>=0.7 ? "Strong work — review a few combinations." :
-                        "Good start — replay and look closely at the building blocks.";
-    }
-  }
-
-  updateGate();
-  window.scrollTo({top:0,behavior:"smooth"});
+ const s=screens[current]; card.innerHTML=`<span class="badge">STAGE ${current+1} OF ${screens.length}</span><h2>${s.title}</h2><div class="sub">${s.sub}</div>${s.body}`;
+ bar.style.width=((current+1)/screens.length*100)+"%"; back.disabled=current===0; next.textContent=current===screens.length-1?"Play Again ↻":"Next →";
+ [...card.querySelectorAll(".question")].forEach((question,qi)=>{question.querySelectorAll(".opt").forEach(btn=>btn.onclick=()=>{
+   question.querySelectorAll(".opt").forEach(b=>b.classList.remove("correct","wrong"));
+   const ok=btn.dataset.ok==="1"; btn.classList.add(ok?"correct":"wrong"); answered[current].add(qi); if(ok) mastered[current].add(qi);
+   const fb=question.querySelector(".feedback"); fb.textContent=ok?fb.dataset.success:"Try again."; fb.className="feedback show "+(ok?"good":"try"); updateGate();
+ })});
+ if(current===screens.length-1){document.getElementById("finalScore").textContent=mastered.slice(0,-1).reduce((a,s)=>a+s.size,0);}
+ updateGate();
 }
-
-function updateGate(){
-  const qs=[...card.querySelectorAll(".question")];
-  const complete = qs.length===0 || answered[current].size===qs.length;
-  next.disabled = !complete;
-  status.textContent = !complete ? `Answer all questions before continuing. (${answered[current].size}/${qs.length})` : "";
-}
-
-next.onclick=()=>{
-  if(next.disabled) return;
-  if(current===screens.length-1){
-    current=0; totalCorrect=0; totalQuestions=0;
-    for(let i=0;i<answered.length;i++){answered[i].clear();correctSeen[i].clear();}
-  }else current++;
-  render();
-};
-back.onclick=()=>{if(current>0){current--;render();}};
-render();
-</script>
-</body>
-</html>
+function updateGate(){const qs=card.querySelectorAll(".question"); if(!qs.length){next.disabled=false;status.textContent="";return} const done=answered[current].size>=qs.length; next.disabled=!done; status.textContent=done?"":"Answer every question to continue.";}
+next.onclick=()=>{if(current===screens.length-1){current=0;answered.forEach(s=>s.clear());mastered.forEach(s=>s.clear());}else current++;render();window.scrollTo(0,0)};
+back.onclick=()=>{if(current>0){current--;render();window.scrollTo(0,0)}}; render();
+</script></body></html>
