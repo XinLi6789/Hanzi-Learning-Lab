@@ -35,14 +35,14 @@ const learningScreens = [
   q(1, "Build one character", "Look for the enclosing part.", "门 + 口 → ?", ["问", "明", "妈"], "问", "问 means “ask.” 口 sits inside 门."),
   q(1, "Build one character", "Two familiar parts form one new shape.", "女 + 子 → ?", ["好", "妈", "家"], "好", "女 + 子 build the single character 好, meaning “good.”"),
   q(1, "Build one character", "Compare this with a two-character word.", "女 + 马 → ?", ["妈", "女王", "好"], "妈", "妈 is one character meaning “mom.” 女王 is a two-character word."),
-  q(1, "Build a word", "Complete characters stay separate and create one word.", "森 + 林 → ?", ["森林", "森", "林"], "森林", "森林 means “forest.” It is a word made from two characters."),
-  q(1, "Build a word", "Choose the word made by the two characters.", "火 + 山 → ?", ["火山", "问", "休"], "火山", "火山 means “volcano.” 火 and 山 remain separate characters."),
-  q(1, "Build a word", "Choose the correct combination.", "女 + 王 → ?", ["女王", "王子", "妈"], "女王", "女王 means “queen.”"),
-  q(1, "Build a word", "Choose the correct combination.", "王 + 子 → ?", ["王子", "女王", "大人"], "王子", "王子 means “prince.”"),
-  q(1, "Build a word", "Add 小 before the complete word 王子.", "小 + 王子 → ?", ["小王子", "王子", "小人"], "小王子", "小王子 means “little prince.”"),
-  q(1, "Build a word", "Build meaning from familiar characters.", "大 + 人 → ?", ["大人", "大家", "家人"], "大人", "大人 means “adult.”"),
-  q(1, "Build a word", "Build meaning from familiar characters.", "家 + 人 → ?", ["家人", "大家", "大人"], "家人", "家人 means “family member” or “family members.”"),
-  q(1, "Build a word", "Build meaning from familiar characters.", "大 + 家 → ?", ["大家", "家人", "大人"], "大家", "大家 means “everyone.”"),
+  wordMeaning("森林", ["forest", "volcano", "family"], "forest", "森林 means “forest.” 森 and 林 stay as two separate characters in this word."),
+  wordMeaning("火山", ["volcano", "forest", "adult"], "volcano", "火山 means “volcano.” 火 means fire and 山 means mountain."),
+  wordMeaning("女王", ["queen", "prince", "mother"], "queen", "女王 means “queen.”"),
+  wordMeaning("王子", ["prince", "queen", "child"], "prince", "王子 means “prince.”"),
+  wordMeaning("小王子", ["little prince", "young queen", "small child"], "little prince", "小王子 means “little prince.”"),
+  wordMeaning("大人", ["adult", "everyone", "family member"], "adult", "大人 means “adult.”"),
+  wordMeaning("家人", ["family member(s)", "everyone", "adult"], "family member(s)", "家人 means “family member” or “family members.”"),
+  wordMeaning("大家", ["everyone", "family member(s)", "adult"], "everyone", "大家 means “everyone.”"),
   q(1, "Character or word?", "Decide whether parts make one character or complete characters make a word.", "Which example makes ONE character?", ["女 + 马 → 妈", "火 + 山 → 火山", "王 + 子 → 王子"], "女 + 马 → 妈", "妈 is one character built from components. 火山 and 王子 are words."),
 
   ruleIntro(),
@@ -86,6 +86,10 @@ function q(step, title, subtitle, display, options, answer, explanation, rule = 
   return { step, type: "question", title, subtitle, display, options, answer, explanation, rule };
 }
 
+function wordMeaning(word, options, answer, explanation) {
+  return { ...q(1, "Build a word", "What does this word mean?", word, options, answer, explanation), questionKind: "word-meaning" };
+}
+
 function ruleIntro() {
   return {
     step: 2, type: "rules", title: "Six writing rules", subtitle: "Use structure to predict a sensible writing path", chip: "STROKE-ORDER MAP",
@@ -109,7 +113,7 @@ const els = {
   studentDialog: document.getElementById("studentDialog"), studentForm: document.getElementById("studentForm"), nickname: document.getElementById("nicknameInput"), className: document.getElementById("classInput"), studentFormError: document.getElementById("studentFormError"), cancelStudent: document.getElementById("cancelStudent")
 };
 
-const storageKey = "hanzi-learning-lab-v4";
+const storageKey = "hanzi-learning-lab-v5";
 let state = freshState();
 let finalResult = null;
 
@@ -202,7 +206,10 @@ function checkAnswer(button, screen, buttons) {
     state.mastered[state.index] = true; els.mastery.textContent = `${Object.keys(state.mastered).length} mastered`;
     showFeedback(true, screen.explanation); setNext(true, state.index === learningScreens.length - 1 ? "Finish" : "Next"); els.gate.textContent = ""; saveState();
   } else {
-    button.classList.add("is-wrong"); showFeedback(false, "Try again. Look closely at the parts or structure, then choose a different answer.");
+    const retryMessage = screen.questionKind === "word-meaning"
+      ? "Try again. Think about the meaning of the whole word, then choose a different answer."
+      : "Try again. Look closely at the parts or structure, then choose a different answer.";
+    button.classList.add("is-wrong"); showFeedback(false, retryMessage);
     setNext(false, state.index === learningScreens.length - 1 ? "Finish" : "Next"); els.gate.textContent = "Find the correct answer before continuing.";
   }
 }
@@ -252,7 +259,7 @@ function buildResult() {
     durationMinutes: Math.max(1, Math.round((Date.now() - (state.startedAt || Date.now())) / 60000)), totalQuestions: questionIndexes.length,
     firstTryCorrect, firstTryRate: firstTryCorrect / questionIndexes.length, totalAttempts, extraAttempts: Math.max(0, totalAttempts - questionIndexes.length),
     meaningsReviewed: "Yes", buildFirstTryRate: stageRate(1), strokeOrderFirstTryRate: stageRate(2), mixedChallengeFirstTryRate: stageRate(3),
-    hardestItems, gameVersion: "4.1", submissionId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`
+    hardestItems, gameVersion: "5.0", submissionId: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`
   };
 }
 
