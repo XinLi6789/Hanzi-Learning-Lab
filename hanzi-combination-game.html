@@ -8,6 +8,8 @@ const BASIC_PAGES=8;
 const RESULTS_ENDPOINT="https://script.google.com/macros/s/AKfycbxfFi4GnZp_uFTdR16jCefO8D1cRzz0hBO-C5ACpM8GPMN3k2M3tRWYL3Eckgjf7sUr/exec";
 let profile=JSON.parse(localStorage.getItem("hanziStudentProfile")||"null");
 let startedAt=Date.now();
+const attemptLog={};
+const firstTryLog={};
 function updateStudentBar(){document.getElementById("studentbar").textContent=profile?profile.nickname+" · "+profile.className:"";}
 document.getElementById("startGame").onclick=()=>{const nickname=document.getElementById("nickname").value.trim(),className=document.getElementById("className").value;if(nickname.length<2||!className){document.getElementById("profileError").textContent="Enter a nickname and choose your class.";return}profile={nickname,className};localStorage.setItem("hanziStudentProfile",JSON.stringify(profile));document.getElementById("studentModal").classList.add("hidden");startedAt=Date.now();updateStudentBar();};
 if(profile){document.getElementById("studentModal").classList.add("hidden");}updateStudentBar();
@@ -35,13 +37,40 @@ function render(){
  bar.style.width=((current+1)/screens.length*100)+"%"; back.disabled=current===0; next.textContent=current===screens.length-1?"Play Again ↻":"Next →";
  [...card.querySelectorAll(".question")].forEach((question,qi)=>{question.querySelectorAll(".opt").forEach(btn=>btn.onclick=()=>{
    question.querySelectorAll(".opt").forEach(b=>b.classList.remove("correct","wrong"));
-   const ok=btn.dataset.ok==="1"; btn.classList.add(ok?"correct":"wrong"); if(ok){ answered[current].add(qi); mastered[current].add(qi); }
+   const key=current+"-"+qi;
+attemptLog[key]=(attemptLog[key]||0)+1;
+const ok=btn.dataset.ok==="1"; btn.classList.add(ok?"correct":"wrong"); if(ok){ answered[current].add(qi); mastered[current].add(qi); if(firstTryLog[key]===undefined) firstTryLog[key]=attemptLog[key]===1; }
    const fb=question.querySelector(".feedback"); fb.textContent=ok?fb.dataset.success:"Try again."; fb.className="feedback show "+(ok?"good":"try"); updateGate();
  })});
  if(current===screens.length-1){document.getElementById("finalScore").textContent=mastered.slice(0,-1).reduce((a,s)=>a+s.size,0); if(!document.getElementById("submitResult")){const box=card.querySelector(".scorebox");box.insertAdjacentHTML("beforeend",'<button class="btn primary" id="submitResult">Submit result to Mr. Li</button><div class="submitmsg" id="submitMsg"></div>');document.getElementById("submitResult").onclick=submitResult;}}
  updateGate();
 }
-async function submitResult(){const btn=document.getElementById("submitResult"),msg=document.getElementById("submitMsg");if(!profile){msg.textContent="Nickname and class are missing.";return}btn.disabled=true;msg.textContent="Submitting…";const total=mastered.slice(0,-1).reduce((a,s)=>a+s.size,0);const result={submittedAt:new Date().toISOString(),className:profile.className,nickname:profile.nickname,completed:"Yes",durationMinutes:Math.max(1,Math.round((Date.now()-startedAt)/60000)),totalQuestions:total,gameVersion:"Combination Game"};try{await fetch(RESULTS_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(result)});msg.textContent="Result submitted to Mr. Li.";btn.textContent="Submitted";}catch(e){msg.textContent="Submission did not work. Please tell Mr. Li.";btn.disabled=false;}}
+async function submitResult(){
+ const btn=document.getElementById("submitResult"),msg=document.getElementById("submitMsg");
+ if(!profile){msg.textContent="Nickname and class are missing.";return}
+ btn.disabled=true;msg.textContent="Submitting…";
+ const questionKeys=[];
+ screens.slice(0,-1).forEach((s,si)=>{const tmp=document.createElement("div");tmp.innerHTML=s.body;(tmp.querySelectorAll(".question")||[]).forEach((_,qi)=>questionKeys.push(si+"-"+qi));});
+ const totalQuestions=questionKeys.length;
+ const firstTryCorrect=questionKeys.filter(k=>firstTryLog[k]===true).length;
+ const totalAttempts=questionKeys.reduce((sum,k)=>sum+(attemptLog[k]||0),0);
+ const buildKeys=questionKeys.filter(k=>Number(k.split("-")[0])>=BASIC_PAGES);
+ const buildFirstTry=buildKeys.length?buildKeys.filter(k=>firstTryLog[k]===true).length/buildKeys.length:"";
+ const hardest=questionKeys.filter(k=>(attemptLog[k]||0)>1).sort((a,b)=>(attemptLog[b]||0)-(attemptLog[a]||0)).slice(0,5).map(k=>{const [si,qi]=k.split("-").map(Number);const tmp=document.createElement("div");tmp.innerHTML=screens[si].body;const q=tmp.querySelectorAll(".question")[qi];return (q?.querySelector("h3")?.textContent||screens[si].title)+" ("+attemptLog[k]+" attempts)";}).join("; ")||"None";
+ const result={
+  submittedAt:new Date().toISOString(),className:profile.className,nickname:profile.nickname,completed:"Yes",
+  durationMinutes:Math.max(1,Math.round((Date.now()-startedAt)/60000)),totalQuestions,
+  firstTryCorrect,firstTryRate:totalQuestions?firstTryCorrect/totalQuestions:0,totalAttempts,
+  extraAttempts:Math.max(0,totalAttempts-totalQuestions),meaningsReviewed:"Yes",
+  buildFirstTryRate:buildFirstTry,strokeOrderFirstTryRate:"",mixedChallengeFirstTryRate:"",
+  hardestItems:hardest,gameVersion:"Combination Game 1.1",
+  submissionId:(globalThis.crypto?.randomUUID?.()||Date.now()+"-"+Math.random().toString(16).slice(2))
+ };
+ try{
+  await fetch(RESULTS_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(result)});
+  msg.textContent="Result submitted to Mr. Li.";btn.textContent="Submitted";
+ }catch(e){msg.textContent="Submission did not work. Please tell Mr. Li.";btn.disabled=false;}
+}
 function updateGate(){const qs=card.querySelectorAll(".question"); if(!qs.length){next.disabled=false;status.textContent="";return} const done=answered[current].size>=qs.length; next.disabled=!done; status.textContent=done?"":(current<BASIC_PAGES?"Answer every Hanzi correctly to continue.":"Answer every question to continue.");}
 next.onclick=()=>{if(current===screens.length-1){current=0;answered.forEach(s=>s.clear());mastered.forEach(s=>s.clear());}else current++;render();window.scrollTo(0,0)};
 back.onclick=()=>{if(current>0){current--;render();window.scrollTo(0,0)}}; render();
