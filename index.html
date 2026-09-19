@@ -1,127 +1,30 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#153d63">
-  <meta name="description" content="An interactive Chinese character learning game for recognizing, building, and writing Hanzi.">
-  <title>Mr. Li's Hanzi Learning Lab</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mr. Li's Hanzi Learning Lab</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f8fb;color:#17243d;font-family:Arial,"Noto Sans",sans-serif}
+.wrap{max-width:1120px;margin:auto;padding:34px 22px}.hero{text-align:center;margin-bottom:30px}
+.kicker{font-size:14px;font-weight:900;letter-spacing:.12em;color:#607089}.hero h1{font-size:48px;margin:8px 0}.cn{font-family:"PingFang SC","Microsoft YaHei",sans-serif}
+.hero p{font-size:20px;color:#607089;line-height:1.5}.path{font-weight:800;margin-top:14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.card{background:white;border:1px solid #dfe5ee;border-radius:24px;padding:24px;box-shadow:0 8px 24px #17243d0d;display:flex;flex-direction:column}
+.step{font-size:12px;font-weight:900;letter-spacing:.1em;color:#718099}.icon{font-size:42px;margin-top:8px}.card h2{font-size:25px;margin:10px 0 5px}.card p{color:#607089;font-size:17px;line-height:1.5;flex:1}.example{font-size:26px;font-weight:800;margin:12px 0}.btn{display:block;text-align:center;text-decoration:none;background:#3859a8;color:white;border-radius:14px;padding:13px 16px;font-size:17px;font-weight:900;margin-top:12px}
+.footer{text-align:center;color:#607089;margin-top:28px;font-size:14px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.hero h1{font-size:38px}}
+</style>
 </head>
-<body>
-  <div class="page-shell">
-    <header class="site-header">
-      <a class="brand" href="#" aria-label="Hanzi Learning Lab home">
-        <span class="brand-mark" aria-hidden="true">字</span>
-        <span><strong>Hanzi Learning Lab</strong><small>汉字探索实验室</small></span>
-      </a>
-      <button class="quiet-button" id="restartButton" type="button">Restart</button>
-    </header>
-
-    <main>
-      <section class="hero" id="introScreen" aria-labelledby="heroTitle">
-        <div class="hero-copy">
-          <p class="eyebrow">SEE THE SYSTEM · BUILD THE MEANING</p>
-          <h1 id="heroTitle">Chinese characters are built from patterns.</h1>
-          <p class="hero-text">Learn the building blocks, combine them into characters and words, then use structure rules to solve a mixed challenge.</p>
-          <div class="hero-actions">
-            <button class="primary-button" id="startButton" type="button">Start the lab <span aria-hidden="true">→</span></button>
-            <span class="time-note">4 steps · about 15–20 minutes</span>
-          </div>
-        </div>
-        <div class="hero-visual" aria-label="Character combination examples">
-          <div class="tile tile-a">女</div><span>+</span><div class="tile tile-b">马</div><span>→</span><div class="tile tile-result">妈</div>
-          <div class="visual-caption">components → one character</div>
-          <div class="word-example"><span>火</span><span>山</span><strong>火山</strong></div>
-          <div class="visual-caption">characters → one word</div>
-        </div>
-      </section>
-
-      <section class="game-shell is-hidden" id="gameScreen" aria-live="polite">
-        <nav class="stepper" aria-label="Learning steps">
-          <button class="step-tab" data-step="0" type="button"><span>1</span><b>Meanings</b></button>
-          <button class="step-tab" data-step="1" type="button"><span>2</span><b>Build</b></button>
-          <button class="step-tab" data-step="2" type="button"><span>3</span><b>Write</b></button>
-          <button class="step-tab" data-step="3" type="button"><span>4</span><b>Challenge</b></button>
-        </nav>
-
-        <div class="progress-row">
-          <div>
-            <span class="progress-label" id="stageLabel">STEP 1 OF 4</span>
-            <strong id="screenCount">1 / 1</strong>
-          </div>
-          <div class="progress-track" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <span class="mastery-count" id="masteryCount">0 mastered</span>
-        </div>
-
-        <article class="learning-card" id="learningCard"></article>
-
-        <div class="navigation-row">
-          <button class="secondary-button" id="backButton" type="button"><span aria-hidden="true">←</span> Back</button>
-          <div class="gate-message" id="gateMessage" role="status"></div>
-          <button class="primary-button" id="nextButton" type="button">Next <span aria-hidden="true">→</span></button>
-        </div>
-      </section>
-
-      <section class="finish-screen is-hidden" id="finishScreen" aria-labelledby="finishTitle">
-        <div class="completion-seal" aria-hidden="true">成</div>
-        <p class="eyebrow">LAB COMPLETE</p>
-        <h2 id="finishTitle">You can see how Hanzi works.</h2>
-        <p id="finishSummary"></p>
-        <div class="result-card" id="resultCard"></div>
-        <div class="takeaway-grid">
-          <div><span>COMPONENTS</span><strong>女 + 马 → 妈</strong><p>Parts fit inside one character square.</p></div>
-          <div><span>CHARACTERS</span><strong>火 + 山 → 火山</strong><p>Complete characters stay separate to form a word.</p></div>
-          <div><span>WRITING</span><strong>结构 → 笔顺</strong><p>Structure helps you predict a sensible writing path.</p></div>
-        </div>
-        <div class="finish-actions">
-          <button class="primary-button" id="submitResultButton" type="button">Submit result</button>
-          <button class="primary-button" id="playAgainButton" type="button">Play again</button>
-          <button class="secondary-button" id="reviewButton" type="button">Review the character map</button>
-        </div>
-        <p class="submission-status" id="submissionStatus" role="status"></p>
-      </section>
-
-      <dialog class="student-dialog" id="studentDialog">
-        <form method="dialog" id="studentForm">
-          <p class="eyebrow">BEFORE YOU START</p>
-          <h2>Who is playing?</h2>
-          <p class="form-note">Use your classroom nickname. Do not enter your full name, email, or student number.</p>
-          <label for="nicknameInput">Nickname</label>
-          <input id="nicknameInput" name="nickname" type="text" maxlength="24" autocomplete="off" required placeholder="e.g. Panda7">
-          <label for="classInput">Class</label>
-          <select id="classInput" name="className" required>
-            <option value="">Choose your class</option>
-            <option>Grade 8</option>
-            <option>Grade 9</option>
-            <option>Grade 10</option>
-            <option>Grade 11</option>
-            <option>IB DP1</option>
-            <option>Other</option>
-          </select>
-          <p class="form-error" id="studentFormError" role="alert"></p>
-          <div class="dialog-actions"><button class="secondary-button" id="cancelStudent" type="button">Cancel</button><button class="primary-button" type="submit">Start the lab →</button></div>
-        </form>
-      </dialog>
-
-      <dialog class="reference-dialog" id="referenceDialog">
-        <div class="dialog-heading"><div><p class="eyebrow">QUICK REFERENCE</p><h2>Character map</h2></div><button class="icon-button" id="closeReference" aria-label="Close reference" type="button">×</button></div>
-        <div class="reference-columns">
-          <div><h3>Building blocks</h3><div id="referenceCharacters" class="mini-grid"></div></div>
-          <div><h3>Build one character</h3><div id="referenceCombinations" class="reference-list"></div></div>
-          <div><h3>Build a word</h3><div id="referenceWords" class="reference-list"></div></div>
-        </div>
-      </dialog>
-    </main>
-
-    <footer>
-      <p>Notice the parts. Use the structure. Predict, check, and write.</p>
-      <button id="referenceButton" type="button">Open character map</button>
-    </footer>
-  </div>
-  <script src="results-config.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+<body><main class="wrap">
+<section class="hero"><div class="kicker">CHINESE CHARACTER INQUIRY</div>
+<h1>Mr. Li's Hanzi Learning Lab <span class="cn">汉字探索实验室</span></h1>
+<p>Start with basic Hanzi. Build characters and words, discover meaning clues, and learn how character structure works.</p>
+<div class="path">BASIC HANZI → BUILD → MEANING CLUES → STRUCTURE → TRANSFER</div></section>
+<section class="grid">
+<article class="card"><div class="step">START HERE</div><div class="icon">🧩</div><h2>Hanzi Combination Game</h2><p>Recognize basic Hanzi, combine components to make new characters, and combine characters to build words.</p><div class="example cn">女 + 马 → 妈　|　火 + 山 → 火山</div><a class="btn" href="hanzi-combination-game.html">PLAY</a></article>
+<article class="card"><div class="step">EXPLORE</div><div class="icon">🔎</div><h2>Radical Detective</h2><p>Use radicals as clues to meaning. Find the character that belongs to each meaning family.</p><div class="example cn">氵 → 河 · 海 · 洗</div><a class="btn" href="radical-detective.html">PLAY</a></article>
+<article class="card"><div class="step">BUILD</div><div class="icon">🧱</div><h2>Hanzi Builder</h2><p>See characters as building blocks. Combine familiar characters and discover patterns in Chinese words.</p><div class="example cn">学 + 校 → 学校</div><a class="btn" href="hanzi-builder.html">PLAY</a></article>
+<article class="card"><div class="step">TRANSFER</div><div class="icon">🧠</div><h2>Hanzi Visual Lab</h2><p>Explore components, character structure, writing patterns, and transfer your knowledge to unfamiliar Hanzi.</p><div class="example cn">部件 + 结构 + 笔顺</div><a class="btn" href="hanzi-visual-lab.html">EXPLORE</a></article>
+</section>
+<div class="footer">Notice patterns. Build meaning. Learn Hanzi with Mr. Li.</div>
+</main></body></html>
