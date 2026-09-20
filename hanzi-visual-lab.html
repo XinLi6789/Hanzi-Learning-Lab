@@ -117,7 +117,8 @@ ${q("我 — Does one simple structure rule explain the whole character?",["No �
 ];
 
 function q(text,opts,correct,feedback){
- let buttons=opts.map((o,i)=>`<button class="opt" data-ok="${i===correct?1:0}">${o}</button>`).join("");
+ const choices=opts.map((o,i)=>({text:o,ok:i===correct})).sort(()=>Math.random()-.5);
+ let buttons=choices.map(x=>`<button class="opt" data-ok="${x.ok?1:0}">${x.text}</button>`).join("");
  return `<div class="question"><h3>${text}</h3><div class="opts">${buttons}</div><div class="feedback">${feedback}</div></div>`;
 }
 let i=0;
