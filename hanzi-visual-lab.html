@@ -37,6 +37,26 @@ const slides = [
 <div class="box"><div class="hz">她</div><b>女 + 也</b><p>same structure, different clue</p></div>
 <div class="box"><div class="hz">校</div><b>木 + 交</b><p>finish one component, then the next</p></div></div>
 <div class="note"><b>Big idea:</b> Chinese characters are not random pictures. They are built from reusable parts.</div>`},
+{t:"From Hanzi to Components",s:"Some familiar Hanzi change shape when they become components",big:"人 → 亻　手 → 扌　水 → 氵",body:`
+<div class="note"><b>Notice:</b> Some Hanzi keep the same shape as a component. Others change shape to fit inside a new character.</div>
+<div class="grid">
+<div class="box"><div class="hz">人 → 亻</div><p>person → person component</p></div>
+<div class="box"><div class="hz">手 → 扌</div><p>hand → hand component</p></div>
+<div class="box"><div class="hz">水 → 氵</div><p>water → water component</p></div>
+<div class="box"><div class="hz">足 → ⻊</div><p>foot → foot component</p></div>
+<div class="box"><div class="hz">火 → 灬</div><p>fire → fire component</p></div>
+<div class="box"><div class="hz">口 → 口</div><p>mouth → mouth component</p></div>
+<div class="box"><div class="hz">木 → 木</div><p>tree → tree component</p></div>
+<div class="box"><div class="hz">目 → 目</div><p>eye → eye component</p></div>
+<div class="box"><div class="hz">女 → 女</div><p>woman → female component</p></div>
+</div>
+${q("Match 人 with its common component form.",["亻","扌","氵","⻊"],0,"✓ 人 → 亻")}
+${q("Match 手 with its common component form.",["扌","亻","灬","氵"],0,"✓ 手 → 扌")}
+${q("Match 水 with its common component form.",["氵","灬","⻊","亻"],0,"✓ 水 → 氵")}
+${q("Match 足 with its common component form.",["⻊","扌","氵","灬"],0,"✓ 足 → ⻊")}
+${q("Match 火 with this common component form.",["灬","氵","扌","亻"],0,"✓ 火 → 灬")}
+${q("Which one often keeps the SAME shape as a component?",["口","手 → 扌","水 → 氵","人 → 亻"],0,"✓ 口 often stays 口. 木, 目, and 女 can also keep their basic shape.")}
+`},
 {t:"Meaning Clues",s:"A radical gives a clue — not the whole meaning",big:"氵　口　扌　衤",body:`<div class="grid">
 <div class="box"><div class="hz">氵</div><b>Water</b><p>河 · 海 · 洗</p></div>
 <div class="box"><div class="hz">口</div><b>Mouth / speaking</b><p>吃 · 喝 · 唱</p></div>
