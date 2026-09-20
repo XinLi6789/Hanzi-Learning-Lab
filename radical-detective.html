@@ -9,16 +9,17 @@ const Q=[
 ["女","FEMALE / FAMILY","妈","妈 — mom",["妈 — mom","河 — river","说 — speak","树 — tree"]],
 ["讠","SPEECH / LANGUAGE","说","说 — speak",["说 — speak","裤 — trousers","花 — flower","脚 — foot"]],
 ["氵","WATER","海","海 — sea",["海 — sea","唱 — sing","袖 — sleeve","姐 — older sister"]],
-["艹","PLANTS","花","花 — flower",["花 — flower","河 — river","找 — look for","礼 — courtesy"]],
+["艹","PLANTS / GRASS","花","花 — flower",["花 — flower","河 — river","找 — look for","礼 — courtesy"]],
+["雨","RAIN / WEATHER","雪","雪 — snow",["雪 — snow","说 — speak","裤 — trousers","妈 — mom"]],
 ["木","TREES / WOOD","林","林 — forest",["林 — forest","说 — speak","裤 — trousers","脸 — face"]],
 ["日","SUN / DAY / TIME","晴","晴 — sunny",["晴 — sunny","海 — sea","找 — look for","姐 — older sister"]],
 ["月","BODY","脸","脸 — face",["脸 — face","海 — sea","说 — speak","花 — flower"]],
-["足","FOOT / MOVEMENT","跑","跑 — run",["跑 — run","晴 — sunny","说 — speak","花 — flower"]],
-["宀","HOME / ROOF","家","家 — home",["家 — home","河 — river","说 — speak","裤 — trousers"]],
+["宀","HOUSE / ROOF","家","家 — home",["家 — home","河 — river","说 — speak","裤 — trousers"]],
+["门","DOOR / ENTRANCE","问","问 — ask",["问 — ask","海 — sea","妈 — mom","林 — forest"]],
 ["目","EYES / SEEING","眼","眼 — eye",["眼 — eye","海 — sea","花 — flower","裤 — trousers"]],
-["衤","CLOTHING","裤","裤 — trousers",["裤 — trousers","祝 — bless","河 — river","姐 — older sister"]],
-["礻","RITUAL / BLESSING","祝","祝 — bless",["祝 — bless","裤 — trousers","海 — sea","找 — look for"]],
-["纟","THREAD / TEXTILE","线","线 — thread / line",["线 — thread / line","家 — home","眼 — eye","唱 — sing"]]
+["衤","CLOTHES / CLOTHING","裤","裤 — trousers",["裤 — trousers","祝 — bless","河 — river","姐 — older sister"]],
+["礻","SPIRITUAL / RELIGION","祝","祝 — bless",["祝 — bless","裤 — trousers","海 — sea","找 — look for"]],
+["纟","THREAD / SILK","线","线 — thread / line",["线 — thread / line","家 — home","眼 — eye","唱 — sing"]]
 ];
 const M=[
 ["亻","PEOPLE",["PEOPLE","WATER","CLOTHING","PLANTS"]],
@@ -27,16 +28,17 @@ const M=[
 ["女","FEMALE / FAMILY",["FEMALE / FAMILY","WATER","EYES / SEEING","THREAD / TEXTILE"]],
 ["讠","SPEECH / LANGUAGE",["SPEECH / LANGUAGE","PLANTS","FOOT / MOVEMENT","HOME / ROOF"]],
 ["氵","WATER",["WATER","PEOPLE","SUN / DAY / TIME","CLOTHING"]],
-["艹","PLANTS",["PLANTS","BODY","MOUTH / SPEAKING","RITUAL / BLESSING"]],
+["艹","PLANTS / GRASS",["PLANTS / GRASS","BODY","MOUTH / SPEAKING","SPIRITUAL / RELIGION"]],
+["雨","RAIN / WEATHER",["RAIN / WEATHER","SPEECH / LANGUAGE","CLOTHES / CLOTHING","PEOPLE"]],
 ["木","TREES / WOOD",["TREES / WOOD","WATER","FEMALE / FAMILY","FOOT / MOVEMENT"]],
 ["日","SUN / DAY / TIME",["SUN / DAY / TIME","EYES / SEEING","HOME / ROOF","THREAD / TEXTILE"]],
 ["月","BODY",["BODY","MOON ONLY","WATER","PLANTS"]],
-["足","FOOT / MOVEMENT",["FOOT / MOVEMENT","SPEECH / LANGUAGE","TREES / WOOD","CLOTHING"]],
-["宀","HOME / ROOF",["HOME / ROOF","HAND / ACTION","WATER","EYES / SEEING"]],
+["宀","HOUSE / ROOF",["HOUSE / ROOF","HAND / ACTION","WATER","EYES / SEEING"]],
+["门","DOOR / ENTRANCE",["DOOR / ENTRANCE","RAIN / WEATHER","WATER","FEMALE / FAMILY"]],
 ["目","EYES / SEEING",["EYES / SEEING","PLANTS","PEOPLE","THREAD / TEXTILE"]],
-["衤","CLOTHING",["CLOTHING","RITUAL / BLESSING","WATER","BODY"]],
-["礻","RITUAL / BLESSING",["RITUAL / BLESSING","CLOTHING","TREES / WOOD","MOUTH / SPEAKING"]],
-["纟","THREAD / TEXTILE",["THREAD / TEXTILE","HOME / ROOF","SUN / DAY / TIME","FOOT / MOVEMENT"]]
+["衤","CLOTHES / CLOTHING",["CLOTHES / CLOTHING","SPIRITUAL / RELIGION","WATER","BODY"]],
+["礻","SPIRITUAL / RELIGION",["SPIRITUAL / RELIGION","CLOTHES / CLOTHING","TREES / WOOD","MOUTH / SPEAKING"]],
+["纟","THREAD / SILK",["THREAD / SILK","HOUSE / ROOF","SUN / DAY / TIME","PLANTS / GRASS"]]
 ];
 let part=1,i=0,s=0,lock=false,totalScore=0;const A=document.getElementById("a");function sh(x){return [...x].sort(()=>Math.random()-.5)}
 function intro(){A.innerHTML='<div class="c" style="text-align:center"><div class="h">🔎 Radical Detective</div><p class="sub"><b>Part 1:</b> Use a radical as a clue to find a related Hanzi.<br><b>Part 2:</b> Identify what each radical is connected with.</p><button class="b" onclick="start()">Start Part 1</button></div>'}
