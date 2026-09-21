@@ -21,8 +21,10 @@
 .rule{font-size:28px;text-align:center;font-weight:800;margin:18px}.cn{text-align:center;color:#66758d;font-weight:700}.pool{font-size:25px;line-height:1.8;text-align:center}
 @media(max-width:650px){.grid{grid-template-columns:1fr}.hero h1{font-size:34px}.card{padding:20px}.hanzi{font-size:48px}}
 </style>
-</head>
-<body>
+<style>
+.student-modal{position:fixed;inset:0;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}.student-box{background:#fff;border-radius:20px;padding:24px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}.student-box h2{margin-top:0}.student-box label{display:block;font-weight:800;margin:12px 0 5px}.student-box input,.student-box select{width:100%;box-sizing:border-box;padding:12px;border:2px solid #cbd5e1;border-radius:10px;font:inherit}.student-box button,.submit-result-btn{margin-top:16px;border:0;border-radius:12px;padding:12px 18px;background:#1d4ed8;color:#fff;font-weight:800;cursor:pointer}.submit-result-btn:disabled{opacity:.55}.submit-status{margin-top:10px;font-weight:700}
+</style></head>
+<body><div class="student-modal" id="studentModal"><div class="student-box"><h2>Student Information</h2><p>Enter your name and class before starting.</p><label for="studentName">Name</label><input id="studentName" maxlength="24" autocomplete="name"><label for="studentClass">Class</label><select id="studentClass"><option value="">Choose class</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>IB DP1</option><option>Other</option></select><button id="studentStart">Start Activity</button><div class="submit-status" id="studentError"></div></div></div>
 <div class="wrap">
 <div class="top"><a href="index.html">← Hanzi Learning Lab</a></div>
 <div class="hero"><h1>🧠 Hanzi Visual Lab</h1><p>See the parts. Notice the pattern. Predict how Hanzi works.</p></div>
@@ -142,6 +144,8 @@ function q(text,opts,correct,feedback){
 }
 let i=0;
 const answered=slides.map(()=>new Set());
+const correctAnswers=slides.map(()=>new Set());
+let visualAttempts=0;
 const card=document.getElementById("card"),bar=document.getElementById("bar"),back=document.getElementById("back"),next=document.getElementById("next"),gate=document.getElementById("gate");
 
 function updateGate(){
@@ -157,12 +161,12 @@ function render(){
  card.innerHTML=`<div class="kicker">STAGE ${i+1} OF ${slides.length}</div><div class="title">${x.t}</div><div class="sub">${x.s}</div><div class="hanzi">${x.big}</div>${x.body}`;
  bar.style.width=((i+1)/slides.length*100)+"%";
  back.disabled=i===0;
- next.textContent=i===slides.length-1?"Start Again ↻":"Next →";
+ next.textContent=i===slides.length-1?"Finish":"Next →";
  const questions=[...card.querySelectorAll(".question")];
  questions.forEach((question,qi)=>{
    question.querySelectorAll(".opt").forEach(btn=>btn.onclick=()=>{
      question.querySelectorAll(".opt").forEach(b=>b.classList.remove("correct","wrong"));
-     btn.classList.add(btn.dataset.ok==="1"?"correct":"wrong");
+     visualAttempts++;btn.classList.add(btn.dataset.ok==="1"?"correct":"wrong");if(btn.dataset.ok==="1")correctAnswers[i].add(qi);
      question.querySelector(".feedback").classList.add("show");
      answered[i].add(qi);
      updateGate();
@@ -172,11 +176,28 @@ function render(){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 back.onclick=()=>{if(i>0){i--;render()}};
-next.onclick=()=>{
- if(next.disabled)return;
- i=i===slides.length-1?0:i+1;
- render();
-};
+next.onclick=()=>{if(next.disabled)return;if(i===slides.length-1){const totalQ=slides.reduce((n,s)=>{const d=document.createElement("div");d.innerHTML=s.body;return n+d.querySelectorAll(".question").length},0);const correct=correctAnswers.reduce((n,s)=>n+s.size,0);card.innerHTML='<div class="title">Lab Complete!</div><div class="sub">You completed the Hanzi Visual Lab.</div><div class="hanzi">✓</div><button class="submit-result-btn" id="submitResult">Submit result to Mr. Li</button><div class="submit-status" id="submitMsg"></div>';next.disabled=true;back.disabled=true;document.getElementById("submitResult").onclick=()=>sendStudentResult({totalQuestions:totalQ,correct,totalAttempts:visualAttempts,meaningsReviewed:"Yes"},document.getElementById("submitResult"),document.getElementById("submitMsg"));return;}i++;render();};
 render();
 </script>
-</body></html>
+<script>
+const RESULTS_ENDPOINT="https://script.google.com/macros/s/AKfycbxfFi4GnZp_uFTdR16jCefO8D1cRzz0hBO-C5ACpM8GPMN3k2M3tRWYL3Eckgjf7sUr/exec";
+const GAME_NAME="Hanzi Visual Lab 1.0";
+let studentProfile=null, activityStartedAt=Date.now();
+(function(){
+ const saved=JSON.parse(localStorage.getItem("hanziStudentProfile")||"null");
+ if(saved){document.getElementById("studentName").value=saved.nickname||"";document.getElementById("studentClass").value=saved.className||"";}
+ document.getElementById("studentStart").onclick=()=>{
+  const nickname=document.getElementById("studentName").value.trim(),className=document.getElementById("studentClass").value;
+  if(!nickname||!className){document.getElementById("studentError").textContent="Please enter your name and choose your class.";return;}
+  studentProfile={nickname,className};localStorage.setItem("hanziStudentProfile",JSON.stringify(studentProfile));activityStartedAt=Date.now();document.getElementById("studentModal").style.display="none";
+ };
+})();
+async function sendStudentResult(metrics,btn,msg){
+ if(!studentProfile){msg.textContent="Name and class are missing.";return;}
+ btn.disabled=true;msg.textContent="Submitting…";
+ const total=Number(metrics.totalQuestions||0), correct=Number(metrics.correct||0);
+ const result={submittedAt:new Date().toISOString(),className:studentProfile.className,nickname:studentProfile.nickname,completed:"Yes",durationMinutes:Math.max(1,Math.round((Date.now()-activityStartedAt)/60000)),totalQuestions:total,firstTryCorrect:correct,firstTryRate:total?correct/total:0,totalAttempts:Number(metrics.totalAttempts||total),extraAttempts:Math.max(0,Number(metrics.totalAttempts||total)-total),meaningsReviewed:metrics.meaningsReviewed||"",buildFirstTryRate:metrics.buildFirstTryRate||"",strokeOrderFirstTryRate:metrics.strokeOrderFirstTryRate||"",mixedChallengeFirstTryRate:metrics.mixedChallengeFirstTryRate||"",hardestItems:metrics.hardestItems||"",gameVersion:GAME_NAME,submissionId:(globalThis.crypto?.randomUUID?.()||Date.now()+"-"+Math.random().toString(16).slice(2))};
+ try{await fetch(RESULTS_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(result)});msg.textContent="Result submitted to Mr. Li.";btn.textContent="Submitted";}
+ catch(e){msg.textContent="Submission did not work. Please tell Mr. Li.";btn.disabled=false;}
+}
+</script></body></html>
