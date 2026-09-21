@@ -19,8 +19,10 @@
 .next{text-align:right;margin-top:15px}.concept{margin-top:20px;padding:17px;border:1px solid #dfe5ee;border-radius:16px;background:#fafbfe}.concept b{font-size:18px}
 .big{font-size:68px;font-weight:900;color:#d99000}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}.compare div{border:1px solid #dfe5ee;border-radius:16px;padding:18px}
 @media(max-width:650px){.opts,.compare{grid-template-columns:1fr}.hero h1{font-size:36px}.build{font-size:43px}.wrap{padding:14px}}
+</style><style>
+.student-modal{position:fixed;inset:0;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}.student-box{background:#fff;border-radius:20px;padding:24px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}.student-box h2{margin-top:0}.student-box label{display:block;font-weight:800;margin:12px 0 5px}.student-box input,.student-box select{width:100%;box-sizing:border-box;padding:12px;border:2px solid #cbd5e1;border-radius:10px;font:inherit}.student-box button,.submit-result-btn{margin-top:16px;border:0;border-radius:12px;padding:12px 18px;background:#1d4ed8;color:#fff;font-weight:800;cursor:pointer}.submit-result-btn:disabled{opacity:.55}.submit-status{margin-top:10px;font-weight:700}
 </style></head>
-<body><div class="wrap"><div class="nav"><a href="index.html">← Hanzi Learning Lab</a></div><div id="app" style="margin-top:14px"></div></div>
+<body><div class="student-modal" id="studentModal"><div class="student-box"><h2>Student Information</h2><p>Enter your name and class before starting.</p><label for="studentName">Name</label><input id="studentName" maxlength="24" autocomplete="name"><label for="studentClass">Class</label><select id="studentClass"><option value="">Choose class</option><option>Grade 8</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>IB DP1</option><option>Other</option></select><button id="studentStart">Start Activity</button><div class="submit-status" id="studentError"></div></div></div><div class="wrap"><div class="nav"><a href="index.html">← Hanzi Learning Lab</a></div><div id="app" style="margin-top:14px"></div></div>
 <script>
 const Q=[
 {l:1,t:"BASIC BUILDING BLOCKS",q:"Which character means “fire”?",b:"🔥",a:"火",o:[["火",""],["木",""],["水",""],["山",""]],fb:"火 means fire. It is one of our basic Hanzi building blocks."},
@@ -65,6 +67,27 @@ function start(){i=0;score=0;show()}
 function show(){locked=false;let x=Q[i],opts=shuffle(x.o);A.innerHTML=`<div class="top"><span>${x.t}</span><span>Score: ${score}/${i}</span></div><div class="bar"><div style="width:${i/Q.length*100}%"></div></div><div class="card"><div class="level">LEVEL ${x.l} • QUESTION ${i+1} OF ${Q.length}</div><div class="q">${x.q}</div><div class="build">${x.b}</div><div class="opts">${opts.map(o=>`<button class="opt" data-v="${o[0]}" onclick="pick(this)"><div class="hz">${/^[\u3400-\u9fff]+$/.test(o[0])?o[0]:''}</div>${o[1]?`<div class="en">${o[1]}</div>`:""}</button>`).join("")}</div><div class="fb" id="fb">Look for known blocks. Use the structure as evidence.</div><div class="next"><button class="btn" id="next" onclick="next()" disabled>Next →</button></div></div>`}
 function pick(el){if(locked)return;locked=true;let x=Q[i],ok=el.dataset.v===x.a;if(ok)score++;document.querySelectorAll(".opt").forEach(b=>{if(b.dataset.v===x.a)b.classList.add("good");else if(b===el)b.classList.add("bad")});document.getElementById("fb").innerHTML=(ok?"✅ <b>Correct.</b> ":"💡 <b>Look again.</b> ")+x.fb;document.getElementById("next").disabled=false}
 function next(){i++;if(i<Q.length)show();else finish()}
-function finish(){A.innerHTML=`<div class="card hero"><div class="pill" style="display:inline-block">BUILD COMPLETE</div><div class="big">${score}/${Q.length}</div><h1>Now you can see the system.</h1><div class="compare"><div><b>COMPONENTS → ONE CHARACTER</b><div class="build" style="font-size:35px">女 + 马 → 妈</div><p>Parts fit together inside one square character.</p></div><div><b>CHARACTERS → A WORD</b><div class="build" style="font-size:35px">火 + 山 → 火山</div><p>Complete characters stay separate and combine their meanings.</p></div></div><div class="concept"><b>Big Idea</b><p>Hanzi is not a collection of random pictures. Known parts can repeat, combine, and help us understand unfamiliar characters and words.</p></div><p><button class="btn" onclick="start()">Play Again</button></p></div>`}
+function finish(){A.innerHTML=`<div class="card hero"><div class="pill" style="display:inline-block">BUILD COMPLETE</div><div class="big">${score}/${Q.length}</div><h1>Now you can see the system.</h1><div class="compare"><div><b>COMPONENTS → ONE CHARACTER</b><div class="build" style="font-size:35px">女 + 马 → 妈</div><p>Parts fit together inside one square character.</p></div><div><b>CHARACTERS → A WORD</b><div class="build" style="font-size:35px">火 + 山 → 火山</div><p>Complete characters stay separate and combine their meanings.</p></div></div><div class="concept"><b>Big Idea</b><p>Hanzi is not a collection of random pictures. Known parts can repeat, combine, and help us understand unfamiliar characters and words.</p></div><p><button class="btn" onclick="start()">Play Again</button></p><button class="submit-result-btn" id="submitResult">Submit result to Mr. Li</button><div class="submit-status" id="submitMsg"></div></div>`;document.getElementById("submitResult").onclick=()=>sendStudentResult({totalQuestions:Q.length,correct:score,totalAttempts:Q.length,buildFirstTryRate:Q.length?score/Q.length:""},document.getElementById("submitResult"),document.getElementById("submitMsg"))}
 intro();
+</script><script>
+const RESULTS_ENDPOINT="https://script.google.com/macros/s/AKfycbxfFi4GnZp_uFTdR16jCefO8D1cRzz0hBO-C5ACpM8GPMN3k2M3tRWYL3Eckgjf7sUr/exec";
+const GAME_NAME="Hanzi Builder 1.0";
+let studentProfile=null, activityStartedAt=Date.now();
+(function(){
+ const saved=JSON.parse(localStorage.getItem("hanziStudentProfile")||"null");
+ if(saved){document.getElementById("studentName").value=saved.nickname||"";document.getElementById("studentClass").value=saved.className||"";}
+ document.getElementById("studentStart").onclick=()=>{
+  const nickname=document.getElementById("studentName").value.trim(),className=document.getElementById("studentClass").value;
+  if(!nickname||!className){document.getElementById("studentError").textContent="Please enter your name and choose your class.";return;}
+  studentProfile={nickname,className};localStorage.setItem("hanziStudentProfile",JSON.stringify(studentProfile));activityStartedAt=Date.now();document.getElementById("studentModal").style.display="none";
+ };
+})();
+async function sendStudentResult(metrics,btn,msg){
+ if(!studentProfile){msg.textContent="Name and class are missing.";return;}
+ btn.disabled=true;msg.textContent="Submitting…";
+ const total=Number(metrics.totalQuestions||0), correct=Number(metrics.correct||0);
+ const result={submittedAt:new Date().toISOString(),className:studentProfile.className,nickname:studentProfile.nickname,completed:"Yes",durationMinutes:Math.max(1,Math.round((Date.now()-activityStartedAt)/60000)),totalQuestions:total,firstTryCorrect:correct,firstTryRate:total?correct/total:0,totalAttempts:Number(metrics.totalAttempts||total),extraAttempts:Math.max(0,Number(metrics.totalAttempts||total)-total),meaningsReviewed:metrics.meaningsReviewed||"",buildFirstTryRate:metrics.buildFirstTryRate||"",strokeOrderFirstTryRate:metrics.strokeOrderFirstTryRate||"",mixedChallengeFirstTryRate:metrics.mixedChallengeFirstTryRate||"",hardestItems:metrics.hardestItems||"",gameVersion:GAME_NAME,submissionId:(globalThis.crypto?.randomUUID?.()||Date.now()+"-"+Math.random().toString(16).slice(2))};
+ try{await fetch(RESULTS_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(result)});msg.textContent="Result submitted to Mr. Li.";btn.textContent="Submitted";}
+ catch(e){msg.textContent="Submission did not work. Please tell Mr. Li.";btn.disabled=false;}
+}
 </script></body></html>
