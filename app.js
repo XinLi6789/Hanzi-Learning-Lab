@@ -267,13 +267,46 @@ async function submitOrDownloadResult() {
   if (!finalResult) return;
   if (!window.HANZI_RESULTS_ENDPOINT) return downloadResult(finalResult);
   els.submitResult.disabled = true; els.submissionStatus.textContent = "Submitting…";
+
+  var submitted = false;
+  var verified = false;
+
+  // Step 1: POST (no-cors — cannot read response, never throws)
   try {
     await fetch(window.HANZI_RESULTS_ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(finalResult) });
+    submitted = true;
+  } catch (_) { submitted = false; }
+
+  // Step 2: Verify endpoint reachability via Image beacon
+  // If endpoint returns 403 or is unreachable, onerror fires
+  try {
+    verified = await new Promise(function(resolve) {
+      var img = new Image();
+      var timeout = setTimeout(function() { resolve(false); }, 5000);
+      img.onload = function() { clearTimeout(timeout); resolve(true); };
+      img.onerror = function() { clearTimeout(timeout); resolve(false); };
+      img.src = window.HANZI_RESULTS_ENDPOINT + "?action=ping&_t=" + Date.now();
+    });
+  } catch (_) { verified = false; }
+
+  // Step 3: Show result based on verification
+  if (submitted && verified) {
     els.submissionStatus.textContent = "Result submitted to your teacher."; els.submitResult.textContent = "Submitted";
-    localStorage.removeItem(storageKey);
-  } catch (_) {
-    els.submissionStatus.textContent = "Submission did not work. Download the result and give it to your teacher."; els.submitResult.disabled = false; els.submitResult.textContent = "Download result"; window.HANZI_RESULTS_ENDPOINT = "";
+    downloadResultSilent(finalResult);
+    state.submitted = true; saveState();
+  } else {
+    els.submissionStatus.innerHTML = "Submission may not have gone through. <strong>A backup file was downloaded automatically.</strong> Please send it to your teacher if needed.";
+    els.submitResult.disabled = false; els.submitResult.textContent = "Try again";
+    downloadResult(finalResult);
   }
+}
+
+function downloadResultSilent(result) {
+  const headers = ["Submitted At","Class","Nickname","Completed","Duration (min)","Total Questions","First-Try Correct","First-Try %","Total Attempts","Extra Attempts","Meanings Reviewed","Build First-Try %","Stroke Order First-Try %","Mixed Challenge First-Try %","Hardest Items","Game Version","Submission ID"];
+  const values = [result.submittedAt,result.className,result.nickname,result.completed,result.durationMinutes,result.totalQuestions,result.firstTryCorrect,result.firstTryRate,result.totalAttempts,result.extraAttempts,result.meaningsReviewed,result.buildFirstTryRate,result.strokeOrderFirstTryRate,result.mixedChallengeFirstTryRate,result.hardestItems,result.gameVersion,result.submissionId];
+  const csv = `${headers.map(csvCell).join(",")}\n${values.map(csvCell).join(",")}\n`;
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a"); link.href = url; link.download = `hanzi-result-${safeFile(result.className)}-${safeFile(result.nickname)}.csv`; link.click(); URL.revokeObjectURL(url);
 }
 
 function downloadResult(result) {
