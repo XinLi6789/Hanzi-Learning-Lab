@@ -202,8 +202,8 @@
 <script>
 // ========== 配置 ==========
 var SHEET_ID = '1aIfSG2ItWHQ184VVsy-jn0asXzN5A0ixpxyY2EBhOvk';
-// 使用 gviz/tq JSONP 接口，浏览器原生支持，不需要 CORS 代理
-var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json:responseHandler:handleGvizData';
+// 使用 gviz/tq 默认 JSONP 回调，浏览器原生支持，不需要 CORS 代理
+var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json';
 
 var allData = [];
 var sortColumn = 'Submitted At';
@@ -229,6 +229,16 @@ var COLUMNS = [
 ];
 
 // ========== 初始化 ==========
+// 设置 gviz 默认回调（必须在 loadData 之前定义）
+window.google = window.google || {};
+window.google.visualization = window.google.visualization || {};
+window.google.visualization.Query = window.google.visualization.Query || {};
+window.google.visualization.Query.setResponse = function(json) {
+  parseGvizData(json);
+  var oldScript = document.getElementById('gvizScript');
+  if (oldScript) oldScript.parentNode.removeChild(oldScript);
+};
+
 loadData();
 
 // ========== 加载数据（使用 gviz JSONP） ==========
@@ -236,30 +246,23 @@ function loadData() {
   document.getElementById('tableBody').innerHTML = '<tr><td colspan="17" class="status-bar loading">正在从 Google Sheets 加载数据...</td></tr>';
   document.getElementById('errorBox').style.display = 'none';
 
-  // JSONP 回调函数
-  window.handleGvizData = function(json) {
-    parseGvizData(json);
-    // 清理 script 标签
-    var oldScript = document.getElementById('gvizScript');
-    if (oldScript) oldScript.parentNode.removeChild(oldScript);
-    delete window.handleGvizData;
-  };
+  // 移除旧 script
+  var oldScript = document.getElementById('gvizScript');
+  if (oldScript) oldScript.parentNode.removeChild(oldScript);
 
   var script = document.createElement('script');
   script.id = 'gvizScript';
-  script.src = GVIZ_URL + '&_t=' + Date.now();
+  script.src = GVIZ_URL;
 
   script.onerror = function() {
     showError('无法从 Google Sheets 读取数据。请确认表格已设为公开可读（共享 → 知道链接的任何人都可以查看）。', null);
     if (script.parentNode) script.parentNode.removeChild(script);
-    delete window.handleGvizData;
   };
 
   // 超时处理
   setTimeout(function() {
     if (document.getElementById('tableBody').querySelector('.loading')) {
       if (script.parentNode) script.parentNode.removeChild(script);
-      delete window.handleGvizData;
       showError('数据加载超时。请确认表格已设为公开可读，然后点击重试。', null);
     }
   }, 15000);
