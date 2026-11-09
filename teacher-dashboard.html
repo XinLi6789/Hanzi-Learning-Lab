@@ -12,8 +12,6 @@
     color: #1a1a2e;
     min-height: 100vh;
   }
-
-  /* 顶部栏 */
   .topbar {
     background: linear-gradient(135deg, #4285f4, #3367d6);
     color: #fff;
@@ -36,11 +34,7 @@
     transition: background 0.2s;
   }
   .topbar .refresh-btn:hover { background: rgba(255,255,255,0.3); }
-
-  /* 主容器 */
   .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-
-  /* 统计卡片 */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -59,8 +53,6 @@
   .stat-card .label { font-size: 13px; color: #666; font-weight: 500; }
   .stat-card .value { font-size: 32px; font-weight: 700; color: #1a73e8; }
   .stat-card .detail { font-size: 12px; color: #999; }
-
-  /* 筛选栏 */
   .toolbar {
     background: #fff;
     border-radius: 12px;
@@ -95,8 +87,6 @@
     transition: background 0.2s;
   }
   .toolbar .export-btn:hover { background: #2d8e47; }
-
-  /* 表格 */
   .table-wrapper {
     background: #fff;
     border-radius: 12px;
@@ -104,15 +94,8 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
   .table-scroll { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  thead {
-    background: #f8f9fa;
-    border-bottom: 2px solid #e0e0e0;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #f8f9fa; border-bottom: 2px solid #e0e0e0; }
   th {
     padding: 12px 14px;
     text-align: left;
@@ -127,25 +110,12 @@
   }
   th:hover { background: #e8eaed; }
   th .sort-indicator { font-size: 10px; color: #999; margin-left: 4px; }
-  td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #f0f0f0;
-    white-space: nowrap;
-  }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
   tbody tr:hover { background: #f5f7fa; }
-
-  /* 百分比单元格颜色 */
   .pct-high { color: #34a853; font-weight: 600; }
   .pct-mid { color: #f9ab00; font-weight: 600; }
   .pct-low { color: #ea4335; font-weight: 600; }
-
-  /* 状态提示 */
-  .status-bar {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-    font-size: 15px;
-  }
+  .status-bar { text-align: center; padding: 40px; color: #666; font-size: 15px; }
   .loading { color: #4285f4; }
   .error {
     background: #fce8e6;
@@ -161,34 +131,17 @@
     cursor: pointer;
     margin-left: 8px;
   }
-
-  /* 空状态 */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-  }
+  .empty-state { text-align: center; padding: 60px 20px; color: #999; }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-
-  /* 配置提示 */
   .config-banner {
-    background: #fef7e0;
-    border: 1px solid #f9ab00;
+    background: #e6f4ea;
+    border: 1px solid #34a853;
     border-radius: 8px;
     padding: 14px 18px;
     margin-bottom: 16px;
     font-size: 13px;
-    color: #5f4b00;
+    color: #1e6e3c;
   }
-  .config-banner code {
-    background: rgba(0,0,0,0.08);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'SF Mono', Monaco, monospace;
-    font-size: 12px;
-  }
-
-  /* 响应式 */
   @media (max-width: 768px) {
     .topbar { flex-direction: column; gap: 10px; text-align: center; }
     .toolbar { flex-direction: column; align-items: stretch; }
@@ -208,16 +161,13 @@
 
 <div class="container">
 
-  <!-- 配置提示 -->
   <div class="config-banner" id="configBanner">
-    <strong>数据来源：</strong> <code id="endpointDisplay"></code><br>
-    如果无法加载数据，请确认 Apps Script 已部署为「任何人可访问」，且 doGet 函数正常工作。
+    <strong>数据来源：</strong> Google Sheets (公开可读)<br>
+    数据实时从 Google Sheets 读取，学生提交成绩后点「刷新数据」即可看到最新记录。
   </div>
 
-  <!-- 错误提示 -->
   <div id="errorBox" style="display:none;" class="error"></div>
 
-  <!-- 统计卡片 -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card"><span class="label">总提交数</span><span class="value" id="statTotal">—</span></div>
     <div class="stat-card"><span class="label">学生人数</span><span class="value" id="statStudents">—</span></div>
@@ -225,7 +175,6 @@
     <div class="stat-card"><span class="label">平均首次正确率</span><span class="value" id="statAvgFirstTry">—</span></div>
   </div>
 
-  <!-- 筛选栏 -->
   <div class="toolbar">
     <label>班级：</label>
     <select id="classFilter" onchange="renderTable()">
@@ -237,7 +186,6 @@
     <button class="export-btn" onclick="exportCSV()">导出 CSV</button>
   </div>
 
-  <!-- 表格 -->
   <div class="table-wrapper">
     <div class="table-scroll">
       <table id="dataTable">
@@ -253,7 +201,12 @@
 
 <script>
 // ========== 配置 ==========
-var ENDPOINT = "https://script.google.com/macros/s/AKfycbxfFi4GnZp_uFTdR16jCefO8D1cRzz0hBO-C5ACpM8GPMN3k2M3tRWYL3Eckgjf7sUr/exec";
+// Google Sheets CSV 公开导出链接
+var SHEET_ID = '1aIfSG2ItWHQ184VVsy-jn0asXzN5A0ixpxyY2EBhOvk';
+var CSV_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv';
+
+// CORS 代理（Google Sheets CSV 在浏览器中直接 fetch 会被 CORS 拦截）
+var CORS_PROXY = 'https://corsproxy.io/?url=';
 
 var allData = [];
 var sortColumn = 'Submitted At';
@@ -263,6 +216,7 @@ var COLUMNS = [
   { key: 'Submitted At', label: '提交时间', sortable: true },
   { key: 'Class', label: '班级', sortable: true },
   { key: 'Nickname', label: '昵称', sortable: true },
+  { key: 'Game Version', label: '游戏', sortable: true },
   { key: 'Completed', label: '完成', sortable: true },
   { key: 'Duration (min)', label: '用时(分)', sortable: true },
   { key: 'Total Questions', label: '总题数', sortable: true },
@@ -274,64 +228,119 @@ var COLUMNS = [
   { key: 'Stroke Order First-Try %', label: '笔顺正确率', sortable: true, isPct: true },
   { key: 'Mixed Challenge First-Try %', label: '综合正确率', sortable: true, isPct: true },
   { key: 'Hardest Items', label: '最难题目', sortable: false },
-  { key: 'Game Version', label: '版本', sortable: true },
   { key: 'Submission ID', label: '提交ID', sortable: false }
 ];
 
 // ========== 初始化 ==========
-document.getElementById('endpointDisplay').textContent = ENDPOINT;
 loadData();
 
 // ========== 加载数据 ==========
 function loadData() {
-  document.getElementById('tableBody').innerHTML = '<tr><td colspan="17" class="status-bar loading">正在加载数据...</td></tr>';
+  document.getElementById('tableBody').innerHTML = '<tr><td colspan="17" class="status-bar loading">正在从 Google Sheets 加载数据...</td></tr>';
   document.getElementById('errorBox').style.display = 'none';
 
-  var script = document.createElement('script');
-  script.src = ENDPOINT + '?action=list&callback=handleData&_t=' + Date.now();
+  var fullUrl = CORS_PROXY + encodeURIComponent(CSV_URL) + '&_t=' + Date.now();
 
-  script.onerror = function() {
-    // JSONP 失败，尝试普通 fetch
-    fetch(ENDPOINT + '?action=list&_t=' + Date.now())
-      .then(function(r) { return r.json(); })
-      .then(function(json) { handleDataRaw(json); })
-      .catch(function(err) {
-        showError('无法连接到数据源。可能原因：Apps Script 未部署为「任何人可访问」，或 doGet 函数有错误。', err);
-      });
-    document.body.removeChild(script);
-  };
-
-  // JSONP 回调（如果 Apps Script 支持）
-  window.handleData = function(json) {
-    handleDataRaw(json);
-    document.body.removeChild(script);
-    delete window.handleData;
-  };
-
-  document.body.appendChild(script);
-
-  // 超时处理
-  setTimeout(function() {
-    if (document.getElementById('tableBody').querySelector('.loading')) {
-      if (script.parentNode) document.body.removeChild(script);
-      // 检查是否已经通过 fetch 成功
-      if (!allData.length) {
-        // fetch 可能在进行中，不重复报错
-      }
-    }
-  }, 10000);
+  fetch(fullUrl)
+    .then(function(resp) {
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return resp.text();
+    })
+    .then(function(csvText) {
+      parseCSV(csvText);
+    })
+    .catch(function(err) {
+      // 备用：尝试另一个代理
+      var altUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL) + '&_t=' + Date.now();
+      fetch(altUrl)
+        .then(function(resp) {
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          return resp.text();
+        })
+        .then(function(csvText) {
+          parseCSV(csvText);
+        })
+        .catch(function(err2) {
+          showError('无法从 Google Sheets 读取数据。请确认表格已设为公开可读（共享 → 知道链接的任何人都可以查看）。', err2);
+        });
+    });
 }
 
-function handleDataRaw(json) {
-  if (json.status === 'error') {
-    showError('数据源返回错误：' + (json.message || '未知错误'), null);
+// ========== CSV 解析 ==========
+function parseCSV(text) {
+  var lines = [];
+  var current = '';
+  var inQuotes = false;
+
+  // 手动解析 CSV（处理引号内的换行和逗号）
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (ch === '"') {
+      if (inQuotes && text[i+1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === '\n' && !inQuotes) {
+      lines.push(current);
+      current = '';
+    } else if (ch === '\r' && !inQuotes) {
+      // skip
+    } else {
+      current += ch;
+    }
+  }
+  if (current) lines.push(current);
+
+  if (lines.length < 2) {
+    showError('Google Sheets 中没有数据。', null);
     return;
   }
-  allData = json.data || [];
+
+  // 解析表头
+  var headers = splitCSVLine(lines[0]);
+
+  // 解析数据行
+  allData = [];
+  for (var i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    var values = splitCSVLine(lines[i]);
+    var row = {};
+    headers.forEach(function(h, idx) {
+      row[h.trim()] = values[idx] || '';
+    });
+    allData.push(row);
+  }
+
   renderStats();
   renderClassFilter();
   renderTableHead();
   renderTable();
+}
+
+function splitCSVLine(line) {
+  var result = [];
+  var current = '';
+  var inQuotes = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i+1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
 }
 
 function showError(msg, err) {
@@ -351,17 +360,15 @@ function renderStats() {
   var firstTryPcts = [];
 
   allData.forEach(function(row) {
-    var key = row['Nickname'] + '|' + row['Class'];
+    var key = (row['Nickname'] || '') + '|' + (row['Class'] || '');
     students[key] = true;
     if (row['Class']) classes[row['Class']] = (classes[row['Class']] || 0) + 1;
-
     var pct = parsePct(row['First-Try %']);
     if (pct !== null) firstTryPcts.push(pct);
   });
 
   document.getElementById('statStudents').textContent = Object.keys(students).length;
   document.getElementById('statClasses').textContent = Object.keys(classes).length;
-
   var avg = firstTryPcts.length ? Math.round(firstTryPcts.reduce(function(a,b){return a+b;}, 0) / firstTryPcts.length) : 0;
   document.getElementById('statAvgFirstTry').textContent = avg + '%';
 }
@@ -383,7 +390,6 @@ function renderClassFilter() {
   allData.forEach(function(row) {
     if (row['Class']) classes[row['Class']] = true;
   });
-
   var select = document.getElementById('classFilter');
   var current = select.value;
   select.innerHTML = '<option value="">全部</option>';
@@ -402,7 +408,7 @@ function renderTableHead() {
   thead.innerHTML = '<tr>' + COLUMNS.map(function(col) {
     var indicator = '';
     if (col.sortable && col.key === sortColumn) {
-      indicator = sortDirection === 'asc' ? ' ▲' : ' ▼';
+      indicator = sortDirection === 'asc' ? ' \u25B2' : ' \u25BC';
     }
     var onclick = col.sortable ? ' onclick="sortBy(\'' + col.key + '\')"' : '';
     var style = col.sortable ? ' style="cursor:pointer"' : '';
@@ -432,37 +438,23 @@ function renderTable() {
     return true;
   });
 
-  // 排序
   filtered.sort(function(a, b) {
     var va = a[sortColumn] || '';
     var vb = b[sortColumn] || '';
-
-    // 尝试数值比较
     var na = parseFloat(va);
     var nb = parseFloat(vb);
-    if (!isNaN(na) && !isNaN(nb)) {
-      return sortDirection === 'asc' ? na - nb : nb - na;
-    }
-
-    // 日期比较
+    if (!isNaN(na) && !isNaN(nb)) return sortDirection === 'asc' ? na - nb : nb - na;
     if (sortColumn === 'Submitted At') {
       var da = new Date(va).getTime();
       var db = new Date(vb).getTime();
-      if (!isNaN(da) && !isNaN(db)) {
-        return sortDirection === 'asc' ? da - db : db - da;
-      }
+      if (!isNaN(da) && !isNaN(db)) return sortDirection === 'asc' ? da - db : db - da;
     }
-
-    // 字符串比较
-    return sortDirection === 'asc'
-      ? String(va).localeCompare(String(vb))
-      : String(vb).localeCompare(String(va));
+    return sortDirection === 'asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
   });
 
   var tbody = document.getElementById('tableBody');
-
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">📭</div>没有匹配的数据</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="17"><div class="empty-state"><div class="icon">\uD83D\uDCED</div>没有匹配的数据</div></td></tr>';
     return;
   }
 
@@ -470,66 +462,45 @@ function renderTable() {
     return '<tr>' + COLUMNS.map(function(col) {
       var value = row[col.key] || '';
       var displayValue = value;
-
-      // 百分比列着色
       if (col.isPct) {
         var pct = parsePct(value);
         if (pct !== null) {
           var cls = pct >= 80 ? 'pct-high' : (pct >= 60 ? 'pct-mid' : 'pct-low');
-          displayValue = '<span class="' + cls + '">' + (typeof value === 'number' ? Math.round(value * 100) + '%' : value) + '</span>';
+          displayValue = '<span class="' + cls + '">' + escapeHtml(String(value)) + '</span>';
         }
       }
-
-      // 提交时间格式化
-      if (col.key === 'Submitted At' && value) {
-        try {
-          var d = new Date(value);
-          if (!isNaN(d.getTime())) {
-            displayValue = d.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-          }
-        } catch(_) {}
-      }
-
-      // 最难题目列加宽
       if (col.key === 'Hardest Items') {
         return '<td style="max-width:250px;white-space:normal;">' + escapeHtml(String(displayValue)) + '</td>';
       }
-
-      return '<td>' + escapeHtml(String(displayValue)) + '</td>';
+      if (col.key === 'Submission ID') {
+        return '<td style="font-size:11px;color:#999;">' + escapeHtml(String(displayValue).substring(0,8)) + '...</td>';
+      }
+      return '<td>' + (col.isPct ? displayValue : escapeHtml(String(displayValue))) + '</td>';
     }).join('') + '</tr>';
   }).join('');
 }
 
 function escapeHtml(text) {
-  return text.replace(/[&<>"]/g, function(c) {
+  return String(text).replace(/[&<>"]/g, function(c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
   });
 }
 
 // ========== 导出 CSV ==========
 function exportCSV() {
-  if (!allData.length) {
-    alert('没有数据可导出');
-    return;
-  }
-
+  if (!allData.length) { alert('没有数据可导出'); return; }
   var classFilter = document.getElementById('classFilter').value;
   var search = document.getElementById('searchInput').value.toLowerCase();
-
   var filtered = allData.filter(function(row) {
     if (classFilter && row['Class'] !== classFilter) return false;
     if (search && row['Nickname'] && row['Nickname'].toLowerCase().indexOf(search) === -1) return false;
     return true;
   });
-
   var headers = COLUMNS.map(function(c) { return c.key; });
   var lines = [headers.map(csvCell).join(',')];
-
   filtered.forEach(function(row) {
-    var values = headers.map(function(h) { return row[h] || ''; });
-    lines.push(values.map(csvCell).join(','));
+    lines.push(headers.map(function(h) { return csvCell(row[h] || ''); }).join(','));
   });
-
   var csv = '\uFEFF' + lines.join('\n');
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   var url = URL.createObjectURL(blob);
