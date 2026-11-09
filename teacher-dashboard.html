@@ -201,12 +201,9 @@
 
 <script>
 // ========== 配置 ==========
-// Google Sheets CSV 公开导出链接
 var SHEET_ID = '1aIfSG2ItWHQ184VVsy-jn0asXzN5A0ixpxyY2EBhOvk';
-var CSV_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv';
-
-// CORS 代理（Google Sheets CSV 在浏览器中直接 fetch 会被 CORS 拦截）
-var CORS_PROXY = 'https://corsproxy.io/?url=';
+// 使用 gviz/tq JSONP 接口，浏览器原生支持，不需要 CORS 代理
+var GVIZ_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json:responseHandler:handleGvizData';
 
 var allData = [];
 var sortColumn = 'Submitted At';
@@ -234,113 +231,81 @@ var COLUMNS = [
 // ========== 初始化 ==========
 loadData();
 
-// ========== 加载数据 ==========
+// ========== 加载数据（使用 gviz JSONP） ==========
 function loadData() {
   document.getElementById('tableBody').innerHTML = '<tr><td colspan="17" class="status-bar loading">正在从 Google Sheets 加载数据...</td></tr>';
   document.getElementById('errorBox').style.display = 'none';
 
-  var fullUrl = CORS_PROXY + encodeURIComponent(CSV_URL) + '&_t=' + Date.now();
+  // JSONP 回调函数
+  window.handleGvizData = function(json) {
+    parseGvizData(json);
+    // 清理 script 标签
+    var oldScript = document.getElementById('gvizScript');
+    if (oldScript) oldScript.parentNode.removeChild(oldScript);
+    delete window.handleGvizData;
+  };
 
-  fetch(fullUrl)
-    .then(function(resp) {
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return resp.text();
-    })
-    .then(function(csvText) {
-      parseCSV(csvText);
-    })
-    .catch(function(err) {
-      // 备用：尝试另一个代理
-      var altUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL) + '&_t=' + Date.now();
-      fetch(altUrl)
-        .then(function(resp) {
-          if (!resp.ok) throw new Error('HTTP ' + resp.status);
-          return resp.text();
-        })
-        .then(function(csvText) {
-          parseCSV(csvText);
-        })
-        .catch(function(err2) {
-          showError('无法从 Google Sheets 读取数据。请确认表格已设为公开可读（共享 → 知道链接的任何人都可以查看）。', err2);
-        });
-    });
+  var script = document.createElement('script');
+  script.id = 'gvizScript';
+  script.src = GVIZ_URL + '&_t=' + Date.now();
+
+  script.onerror = function() {
+    showError('无法从 Google Sheets 读取数据。请确认表格已设为公开可读（共享 → 知道链接的任何人都可以查看）。', null);
+    if (script.parentNode) script.parentNode.removeChild(script);
+    delete window.handleGvizData;
+  };
+
+  // 超时处理
+  setTimeout(function() {
+    if (document.getElementById('tableBody').querySelector('.loading')) {
+      if (script.parentNode) script.parentNode.removeChild(script);
+      delete window.handleGvizData;
+      showError('数据加载超时。请确认表格已设为公开可读，然后点击重试。', null);
+    }
+  }, 15000);
+
+  document.body.appendChild(script);
 }
 
-// ========== CSV 解析 ==========
-function parseCSV(text) {
-  var lines = [];
-  var current = '';
-  var inQuotes = false;
-
-  // 手动解析 CSV（处理引号内的换行和逗号）
-  for (var i = 0; i < text.length; i++) {
-    var ch = text[i];
-    if (ch === '"') {
-      if (inQuotes && text[i+1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (ch === '\n' && !inQuotes) {
-      lines.push(current);
-      current = '';
-    } else if (ch === '\r' && !inQuotes) {
-      // skip
-    } else {
-      current += ch;
-    }
-  }
-  if (current) lines.push(current);
-
-  if (lines.length < 2) {
-    showError('Google Sheets 中没有数据。', null);
+// ========== 解析 gviz JSON ==========
+function parseGvizData(json) {
+  if (json.status !== 'ok') {
+    showError('Google Sheets 返回错误：' + (json.errors ? JSON.stringify(json.errors) : '未知错误'), null);
     return;
   }
 
-  // 解析表头
-  var headers = splitCSVLine(lines[0]);
-
-  // 解析数据行
-  allData = [];
-  for (var i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    var values = splitCSVLine(lines[i]);
-    var row = {};
-    headers.forEach(function(h, idx) {
-      row[h.trim()] = values[idx] || '';
-    });
-    allData.push(row);
+  var table = json.table;
+  if (!table || !table.cols || !table.rows) {
+    allData = [];
+    renderStats();
+    renderClassFilter();
+    renderTableHead();
+    renderTable();
+    return;
   }
+
+  // 提取列名
+  var headers = table.cols.map(function(col) { return col.label || col.id; });
+
+  // 转换数据行
+  allData = table.rows.map(function(row) {
+    var obj = {};
+    row.c.forEach(function(cell, idx) {
+      var header = headers[idx];
+      if (cell) {
+        // 格式化的值优先用（百分比、日期等显示更友好）
+        obj[header] = cell.f !== undefined && cell.f !== null ? cell.f : (cell.v !== undefined ? cell.v : '');
+      } else {
+        obj[header] = '';
+      }
+    });
+    return obj;
+  });
 
   renderStats();
   renderClassFilter();
   renderTableHead();
   renderTable();
-}
-
-function splitCSVLine(line) {
-  var result = [];
-  var current = '';
-  var inQuotes = false;
-  for (var i = 0; i < line.length; i++) {
-    var ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && line[i+1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (ch === ',' && !inQuotes) {
-      result.push(current);
-      current = '';
-    } else {
-      current += ch;
-    }
-  }
-  result.push(current);
-  return result;
 }
 
 function showError(msg, err) {
