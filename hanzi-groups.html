@@ -1175,12 +1175,6 @@ function submitResults() {
     return;
   }
 
-  // If Google Form is not configured, show results summary instead
-  if (GOOGLE_FORM_ID === 'FORM_ID_HERE') {
-    showResultsSummary(name, className);
-    return;
-  }
-
   // Submit each group's results to Google Form
   var submittedCount = 0;
   var now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Bangkok' });
@@ -1276,11 +1270,7 @@ function showResultsSummary(name, className) {
   summary.forEach(function(s) { html += '<div>' + s + '</div>'; });
   html += '</div>';
 
-  if (GOOGLE_FORM_ID === 'FORM_ID_HERE') {
-    html += '<p style="font-size:13px;color:#607089;margin:12px 0">截图这个页面发给老师，或者告诉老师你的成绩。</p>';
-  } else {
-    html += '<p style="font-size:14px;color:#2da771;margin:12px 0;font-weight:700">✓ 成绩已自动提交给老师！</p>';
-  }
+  html += '<p style="font-size:14px;color:#2da771;margin:12px 0;font-weight:700">✓ 成绩已自动提交给老师！</p>';
 
   html += '<button onclick="this.closest(\'div[style*="fixed"]\').remove()" style="background:#3859a8;color:#fff;border:none;border-radius:10px;padding:12px 30px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px">关闭</button>';
   html += '</div></div>';
