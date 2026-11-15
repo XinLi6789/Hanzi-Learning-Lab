@@ -118,7 +118,7 @@ header nav button:hover, header nav button.active {
   overflow: hidden;
   transition: max-height .3s ease;
 }
-.group-card.open .group-body { max-height: 2000px; }
+.group-card.open .group-body { max-height: 3000px; }
 
 /* ── Word Cards ── */
 .words-grid {
@@ -327,12 +327,91 @@ header nav button:hover, header nav button.active {
 }
 .back-top.show { opacity: 1; pointer-events: auto; }
 
+/* ── Student Info Bar ── */
+.student-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.student-bar label { font-size: 14px; font-weight: 700; color: var(--text); }
+.student-bar input {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 15px;
+  flex: 1;
+  min-width: 100px;
+  outline: none;
+  transition: border-color .15s;
+}
+.student-bar input:focus { border-color: var(--primary); }
+.student-bar .student-name { flex: 1.5; }
+.student-bar .student-class { flex: 1; max-width: 120px; }
+.student-bar .student-hint {
+  font-size: 12px;
+  color: var(--muted);
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ── Group Result Banner ── */
+.group-result {
+  display: none;
+  margin: 0 18px 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+.group-result.show { display: block; }
+.group-result.complete {
+  background: var(--green-light);
+  color: #1a6b48;
+}
+.group-result .score { font-size: 22px; font-weight: 800; }
+
+/* ── Submit Banner ── */
+.submit-banner {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--primary);
+  color: #fff;
+  padding: 14px 20px;
+  text-align: center;
+  z-index: 200;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.15);
+}
+.submit-banner.show { display: block; }
+.submit-banner button {
+  background: #fff;
+  color: var(--primary);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 24px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.submit-banner button:hover { background: var(--primary-light); }
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   header h1 { font-size: 20px; }
   .group-chars { font-size: 18px; }
   .word-context { font-size: 22px; }
   .words-grid { grid-template-columns: 1fr; }
+  .student-bar input { min-width: 80px; }
 }
 </style>
 </head>
@@ -352,6 +431,14 @@ header nav button:hover, header nav button.active {
 
 <div class="container">
 
+<div class="student-bar">
+  <label>姓名</label>
+  <input type="text" id="studentName" class="student-name" placeholder="如：Ploy" autocomplete="name">
+  <label>班级</label>
+  <input type="text" id="studentClass" class="student-class" placeholder="如：G10" autocomplete="off">
+  <div class="student-hint">输入姓名和班级后开始做题，做完每组后会自动记录成绩。完成后点底部"提交成绩"按钮。</div>
+</div>
+
 <div class="filter-bar" id="filterBar">
   <button class="active" data-filter="all">全部 30组</button>
   <button data-filter="共同部件">共同部件 (1-16)</button>
@@ -363,7 +450,14 @@ header nav button:hover, header nav button.active {
 
 </div>
 
+<div class="submit-banner" id="submitBanner">
+  <span id="submitStatus">做完练习了吗？</span>
+  <button onclick="submitResults()">提交成绩</button>
+</div>
+
 <button class="back-top" onclick="scrollTo(0,0)" id="backTop">↑</button>
+
+<iframe name="formTarget" style="display:none"></iframe>
 
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -928,6 +1022,7 @@ function renderGroups(filter) {
     }
 
     html += '</div>'; // group-body
+    html += '<div class="group-result" id="result-' + g.num + '"></div>';
     html += '</div>'; // group-card
   });
 
@@ -938,6 +1033,9 @@ function renderGroups(filter) {
 //  INTERACTION
 // ═══════════════════════════════════════════════════════════
 
+// Track answers per group: { groupNum: { practiceIdx: { correct: bool, selected: string, answer: string } } }
+var answerTracker = {};
+
 function toggleGroup(headerEl) {
   var card = headerEl.closest('.group-card');
   card.classList.toggle('open');
@@ -947,28 +1045,250 @@ function checkAnswer(btn, groupNum, practiceIdx, selectedIdx, correctIdx) {
   var allBtns = btn.parentElement.querySelectorAll('button');
   allBtns.forEach(function(b) { b.classList.remove('selected', 'correct', 'wrong'); });
 
+  // Disable all buttons after answering
+  allBtns.forEach(function(b) { b.style.pointerEvents = 'none'; b.style.opacity = '0.6'; });
+
   var blank = document.querySelector('.blank[data-group="' + groupNum + '"][data-practice="' + practiceIdx + '"]');
   var feedback = document.getElementById('fb-' + groupNum + '-' + practiceIdx);
+  var isCorrect = selectedIdx === correctIdx;
 
-  if (selectedIdx === correctIdx) {
+  if (isCorrect) {
     btn.classList.add('correct');
     if (blank) {
       blank.classList.add('filled', 'correct');
       blank.textContent = btn.textContent;
     }
     feedback.className = 'practice-feedback show ok';
-    feedback.textContent = '✓ 正确！' + btn.textContent + ' —— 答对了！';
+    feedback.textContent = '✓ 正确！';
+    btn.style.opacity = '1';
   } else {
     btn.classList.add('wrong');
-    // Also show the correct one
     allBtns[correctIdx].classList.add('correct');
     if (blank) {
       blank.classList.add('filled', 'wrong');
       blank.textContent = btn.textContent;
     }
     feedback.className = 'practice-feedback show no';
-    feedback.textContent = '✗ 正确答案是 ' + allBtns[correctIdx].textContent;
+    feedback.textContent = '✗ 正确答案：' + allBtns[correctIdx].textContent;
+    allBtns[correctIdx].style.opacity = '1';
   }
+
+  // Track answer
+  if (!answerTracker[groupNum]) answerTracker[groupNum] = {};
+  answerTracker[groupNum][practiceIdx] = {
+    correct: isCorrect,
+    selected: btn.textContent,
+    answer: allBtns[correctIdx].textContent
+  };
+
+  // Check if all questions in this group are answered
+  checkGroupComplete(groupNum);
+}
+
+function checkGroupComplete(groupNum) {
+  // Find the group data
+  var group = GROUPS.find(function(g) { return g.num === groupNum; });
+  if (!group || !group.practices) return;
+
+  var answered = answerTracker[groupNum] || {};
+  var total = group.practices.length;
+  var answeredCount = Object.keys(answered).length;
+
+  if (answeredCount >= total) {
+    // All answered — show result
+    var correctCount = 0;
+    var wrongDetails = [];
+    group.practices.forEach(function(p, pi) {
+      if (answered[pi] && answered[pi].correct) {
+        correctCount++;
+      } else {
+        wrongDetails.push('第' + (pi+1) + '题(选' + answered[pi].selected + ',正确' + answered[pi].answer + ')');
+      }
+    });
+
+    var rate = Math.round(correctCount / total * 100);
+    var resultEl = document.getElementById('result-' + groupNum);
+    if (resultEl) {
+      resultEl.className = 'group-result show complete';
+      resultEl.innerHTML = '<span class="score">' + correctCount + '/' + total + '</span> 正确率 ' + rate + '%' +
+        (wrongDetails.length > 0 ? '<br><span style="font-size:13px;font-weight:400">错题：' + wrongDetails.join('，') + '</span>' : '');
+    }
+
+    // Show submit banner
+    showSubmitBanner();
+  }
+}
+
+function showSubmitBanner() {
+  var banner = document.getElementById('submitBanner');
+  var status = document.getElementById('submitStatus');
+
+  // Count total answered groups
+  var answeredGroups = Object.keys(answerTracker).length;
+  var totalGroups = GROUPS.filter(function(g) { return g.practices && g.practices.length; }).length;
+
+  if (answeredGroups > 0) {
+    banner.classList.add('show');
+    if (answeredGroups >= totalGroups) {
+      status.textContent = '所有练习已完成！点击提交成绩。';
+    } else {
+      status.textContent = '已完成 ' + answeredGroups + '/' + totalGroups + ' 组练习。做完后点这里提交成绩。';
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SUBMIT RESULTS TO GOOGLE FORM
+// ═══════════════════════════════════════════════════════════
+
+// TODO: Replace with your actual Google Form ID and entry IDs
+var GOOGLE_FORM_ID = 'FORM_ID_HERE';
+var FORM_ENTRY = {
+  name: 'entry.XXXXXX',
+  class: 'entry.XXXXXX',
+  group: 'entry.XXXXXX',
+  total: 'entry.XXXXXX',
+  correct: 'entry.XXXXXX',
+  rate: 'entry.XXXXXX',
+  details: 'entry.XXXXXX',
+  date: 'entry.XXXXXX'
+};
+
+function submitResults() {
+  var name = document.getElementById('studentName').value.trim();
+  var className = document.getElementById('studentClass').value.trim();
+
+  if (!name) {
+    alert('请先输入你的姓名！');
+    document.getElementById('studentName').focus();
+    return;
+  }
+  if (!className) {
+    alert('请先输入你的班级！');
+    document.getElementById('studentClass').focus();
+    return;
+  }
+
+  var answeredGroups = Object.keys(answerTracker);
+  if (answeredGroups.length === 0) {
+    alert('你还没有做任何练习，请先做题再提交！');
+    return;
+  }
+
+  // If Google Form is not configured, show results summary instead
+  if (GOOGLE_FORM_ID === 'FORM_ID_HERE') {
+    showResultsSummary(name, className);
+    return;
+  }
+
+  // Submit each group's results to Google Form
+  var submittedCount = 0;
+  var now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Bangkok' });
+
+  answeredGroups.forEach(function(gNum) {
+    var group = GROUPS.find(function(g) { return g.num === parseInt(gNum); });
+    if (!group) return;
+
+    var answers = answerTracker[gNum];
+    var total = group.practices.length;
+    var correct = 0;
+    var details = [];
+
+    group.practices.forEach(function(p, pi) {
+      if (answers[pi]) {
+        if (answers[pi].correct) {
+          correct++;
+        } else {
+          details.push('Q' + (pi+1) + ':选' + answers[pi].selected + '/正' + answers[pi].answer);
+        }
+      }
+    });
+
+    var rate = Math.round(correct / total * 100);
+    var detailStr = details.length ? details.join('; ') : '全对';
+
+    // Build form URL
+    var formUrl = 'https://docs.google.com/forms/d/' + GOOGLE_FORM_ID + '/formResponse';
+    var params = new URLSearchParams();
+    params.append(FORM_ENTRY.name, name);
+    params.append(FORM_ENTRY.class, className);
+    params.append(FORM_ENTRY.group, '第' + gNum + '组 ' + group.chars.join(''));
+    params.append(FORM_ENTRY.total, total);
+    params.append(FORM_ENTRY.correct, correct);
+    params.append(FORM_ENTRY.rate, rate + '%');
+    params.append(FORM_ENTRY.details, detailStr);
+    params.append(FORM_ENTRY.date, now);
+
+    // Submit via hidden iframe (no CORS needed)
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = formUrl;
+    form.target = 'formTarget';
+
+    Object.keys(FORM_ENTRY).forEach(function(key) {
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = FORM_ENTRY[key];
+      input.value = params.get(FORM_ENTRY[key]);
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    submittedCount++;
+  });
+
+  // Show success message
+  setTimeout(function() {
+    showResultsSummary(name, className);
+  }, 500);
+}
+
+function showResultsSummary(name, className) {
+  var answeredGroups = Object.keys(answerTracker);
+  var totalQ = 0, totalCorrect = 0;
+  var summary = [];
+
+  answeredGroups.forEach(function(gNum) {
+    var group = GROUPS.find(function(g) { return g.num === parseInt(gNum); });
+    if (!group) return;
+    var answers = answerTracker[gNum];
+    var total = group.practices.length;
+    var correct = 0;
+    group.practices.forEach(function(p, pi) {
+      if (answers[pi] && answers[pi].correct) correct++;
+    });
+    totalQ += total;
+    totalCorrect += correct;
+    summary.push('第' + gNum + '组: ' + correct + '/' + total);
+  });
+
+  var overallRate = totalQ > 0 ? Math.round(totalCorrect / totalQ * 100) : 0;
+
+  var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px" onclick="this.remove()">';
+  html += '<div style="background:#fff;border-radius:16px;padding:30px;max-width:400px;width:100%;max-height:80vh;overflow:auto;text-align:center">';
+  html += '<h2 style="margin:0 0 8px;color:#3859a8">成绩单</h2>';
+  html += '<p style="font-size:18px;margin:4px 0">' + name + ' · ' + className + '</p>';
+  html += '<div style="font-size:48px;font-weight:900;color:' + (overallRate >= 80 ? '#2da771' : overallRate >= 60 ? '#e8743b' : '#d64545') + ';margin:16px 0">' + overallRate + '%</div>';
+  html += '<p style="font-size:16px;color:#607089">总正确 ' + totalCorrect + '/' + totalQ + ' 题</p>';
+  html += '<div style="text-align:left;margin:16px 0;padding:12px;background:#f7f8fb;border-radius:8px;font-size:14px;line-height:2">';
+  summary.forEach(function(s) { html += '<div>' + s + '</div>'; });
+  html += '</div>';
+
+  if (GOOGLE_FORM_ID === 'FORM_ID_HERE') {
+    html += '<p style="font-size:13px;color:#607089;margin:12px 0">截图这个页面发给老师，或者告诉老师你的成绩。</p>';
+  } else {
+    html += '<p style="font-size:14px;color:#2da771;margin:12px 0;font-weight:700">✓ 成绩已自动提交给老师！</p>';
+  }
+
+  html += '<button onclick="this.closest(\'div[style*="fixed"]\').remove()" style="background:#3859a8;color:#fff;border:none;border-radius:10px;padding:12px 30px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px">关闭</button>';
+  html += '</div></div>';
+
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  // Hide submit banner
+  document.getElementById('submitBanner').classList.remove('show');
 }
 
 // Filter buttons
