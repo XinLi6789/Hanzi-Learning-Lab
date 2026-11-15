@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>汉字字组学习 · Hanzi Character Groups</title>
+<style>
+:root {
+  --bg: #f7f8fb;
+  --text: #17243d;
+  --muted: #607089;
+  --card: #ffffff;
+  --border: #dfe5ee;
+  --primary: #3859a8;
+  --primary-light: #e8eef8;
+  --accent: #e8743b;
+  --accent-light: #fef0e6;
+  --green: #2da771;
+  --green-light: #e6f6ee;
+  --red: #d64545;
+  --radius: 16px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Arial, "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.cn { font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, #3859a8 0%, #2a4778 100%);
+  color: #fff;
+  padding: 28px 20px 22px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
+}
+header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+header .sub { font-size: 14px; opacity: .85; margin-top: 4px; }
+header nav { margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+header nav button {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+header nav button:hover, header nav button.active {
+  background: rgba(255,255,255,.3);
+  border-color: rgba(255,255,255,.5);
+}
+
+/* ── Layout ── */
+.container { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* ── Group Card ── */
+.group-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+.group-card:hover { box-shadow: 0 4px 20px rgba(23,36,61,.06); }
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.group-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--primary-light);
+  border-radius: 6px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+.group-chars {
+  font-size: 22px;
+  font-weight: 700;
+  flex: 1;
+  letter-spacing: 2px;
+}
+.group-chars .target { color: var(--primary); }
+.group-chars .shared { color: var(--accent); }
+.group-tag {
+  font-size: 11px;
+  color: var(--muted);
+  background: #f0f3f7;
+  border-radius: 6px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+.group-arrow {
+  color: var(--muted);
+  font-size: 14px;
+  transition: transform .2s;
+}
+.group-card.open .group-arrow { transform: rotate(90deg); }
+
+/* ── Group Body (collapsed) ── */
+.group-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease;
+}
+.group-card.open .group-body { max-height: 2000px; }
+
+/* ── Word Cards ── */
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  padding: 0 18px 18px;
+}
+.word-card {
+  background: #fbfcfe;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  position: relative;
+  transition: all .15s;
+}
+.word-card:hover {
+  border-color: var(--primary);
+  background: #fff;
+}
+
+/* Target character highlight in the word */
+.word-context {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.word-context .hl {
+  color: var(--accent);
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 1px;
+}
+.word-context .hl-alt {
+  color: var(--primary);
+  border-bottom: 3px solid var(--primary);
+  padding-bottom: 1px;
+}
+
+.word-pinyin {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.word-pinyin .tone-1 { color: #e8743b; }
+.word-pinyin .tone-2 { color: #2da771; }
+.word-pinyin .tone-3 { color: #3859a8; }
+.word-pinyin .tone-4 { color: #d64545; }
+.word-pinyin .tone-0 { color: var(--muted); }
+
+.word-en {
+  font-size: 14px;
+  color: var(--text);
+  opacity: .7;
+}
+
+/* Component clue */
+.component-clue {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--green-light);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1a6b48;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.component-clue .icon { font-size: 16px; }
+
+/* ── Practice Section ── */
+.practice-section {
+  background: var(--accent-light);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 0 18px 18px;
+}
+.practice-section h4 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 800;
+}
+.practice-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.practice-item:last-child { margin-bottom: 0; }
+.practice-question {
+  font-size: 18px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.practice-question .blank {
+  display: inline-block;
+  width: 36px;
+  border-bottom: 3px solid var(--accent);
+  text-align: center;
+  color: transparent;
+}
+.practice-question .blank.filled {
+  color: var(--accent);
+  font-weight: 700;
+}
+.practice-question .blank.correct {
+  color: var(--green);
+  border-color: var(--green);
+}
+.practice-question .blank.wrong {
+  color: var(--red);
+  border-color: var(--red);
+}
+.practice-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.practice-options button {
+  background: #f0f3f7;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+.practice-options button:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.practice-options button.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.practice-options button.correct {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+.practice-options button.wrong {
+  border-color: var(--red);
+  background: #fdeaea;
+}
+.practice-feedback {
+  font-size: 13px;
+  margin-top: 6px;
+  display: none;
+}
+.practice-feedback.show { display: block; }
+.practice-feedback.ok { color: var(--green); }
+.practice-feedback.no { color: var(--red); }
+
+/* ── Section Title ── */
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 24px 0 12px;
+  padding-left: 12px;
+  border-left: 4px solid var(--primary);
+}
+
+/* ── Filter ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.filter-bar button {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .15s;
+}
+.filter-bar button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ── Back to top ── */
+.back-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--primary);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+  z-index: 50;
+}
+.back-top.show { opacity: 1; pointer-events: auto; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  header h1 { font-size: 20px; }
+  .group-chars { font-size: 18px; }
+  .word-context { font-size: 22px; }
+  .words-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="cn">汉字字组学习 <span style="font-size:16px;opacity:.7">Hanzi Character Groups</span></h1>
+  <div class="sub">30组字 · 在词语中辨字 · 适用于泰国中学生</div>
+  <nav id="sectionNav">
+    <button data-section="all" class="active">全部</button>
+    <button data-section="共同部件">共同部件</button>
+    <button data-section="形近字">形近字</button>
+    <button data-section="同音用法">同音用法</button>
+    <button data-section="练习模式">练习模式</button>
+  </nav>
+</header>
+
+<div class="container">
+
+<div class="filter-bar" id="filterBar">
+  <button class="active" data-filter="all">全部 30组</button>
+  <button data-filter="共同部件">共同部件 (1-16)</button>
+  <button data-filter="形近字">形近字 (17-28)</button>
+  <button data-filter="同音用法">同音用法 (29-30)</button>
+</div>
+
+<div id="groupsContainer"></div>
+
+</div>
+
+<button class="back-top" onclick="scrollTo(0,0)" id="backTop">↑</button>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  DATA: 30 character groups with contextual words
+//  Each character is shown IN A WORD/PHRASE, never alone
+// ═══════════════════════════════════════════════════════════
+
+var GROUPS = [
+  // ── 一 共同部件与读音联系 起步联系 ──
+  {
+    num: 1, chars: ["妈","吗","马","码"], shared: "马",
+    category: "共同部件", section: "起步联系",
+    note: "共同部件马；注意声调及轻声",
+    words: [
+      { word: "妈妈", pinyin: "māma", en: "mum", target: "妈", pos: 0 },
+      { word: "你好吗", pinyin: "nǐ hǎo ma", en: "How are you?", target: "吗", pos: 2 },
+      { word: "骑马", pinyin: "qí mǎ", en: "ride a horse", target: "马", pos: 1 },
+      { word: "电话号码", pinyin: "diànhuà hàomǎ", en: "phone number", target: "码", pos: 3 },
+    ],
+    practices: [
+      { q: "我___爱我。", pinyin: "wǒ ___ ài wǒ", en: "Mom loves me", options: ["妈","吗","马"], answer: 0 },
+      { q: "你叫什么名___？", pinyin: "nǐ jiào shénme míng___", en: "What's your name?", options: ["码","吗","马"], answer: 1 },
+    ]
+  },
+  {
+    num: 2, chars: ["爸","巴","吧","把"], shared: "巴",
+    category: "共同部件", section: "起步联系",
+    note: "共同部件巴；字形和声调一起比较",
+    words: [
+      { word: "爸爸", pinyin: "bàba", en: "dad", target: "爸", pos: 0 },
+      { word: "嘴巴", pinyin: "zuǐba", en: "mouth", target: "巴", pos: 1 },
+      { word: "好吧", pinyin: "hǎo ba", en: "OK then", target: "吧", pos: 1 },
+      { word: "一把尺子", pinyin: "yì bǎ chǐzi", en: "a ruler", target: "把", pos: 1 },
+    ],
+    practices: [
+      { q: "我___爸每天跑步。", pinyin: "wǒ ___ bà měitiān pǎobù", en: "My dad runs every day", options: ["爸","巴","吧"], answer: 0 },
+      { q: "去___，我们一起走。", pinyin: "qù ___, wǒmen yìqǐ zǒu", en: "Let's go, OK?", options: ["把","巴","吧"], answer: 2 },
+    ]
+  },
+  {
+    num: 3, chars: ["他","她","地"], shared: "也",
+    category: "共同部件", section: "起步联系",
+    note: "他与她同音，地在地铁中读dì",
+    words: [
+      { word: "他是老师", pinyin: "tā shì lǎoshī", en: "He is a teacher", target: "他", pos: 0 },
+      { word: "她是学生", pinyin: "tā shì xuéshēng", en: "She is a student", target: "她", pos: 0 },
+      { word: "坐地铁", pinyin: "zuò dìtiě", en: "take the subway", target: "地", pos: 1 },
+    ],
+    practices: [
+      { q: "___今天没来上课。", pinyin: "___ jīntiān méi lái shàngkè", en: "He didn't come to class today", options: ["她","他","地"], answer: 1 },
+      { q: "我每天坐___上学。", pinyin: "wǒ měitiān zuò ___ shàngxué", en: "I take the subway to school every day", options: ["他","她","地"], answer: 2 },
+    ]
+  },
+  {
+    num: 4, chars: ["青","晴","睛","请","情"], shared: "青",
+    category: "共同部件", section: "起步联系",
+    note: "青作读音线索；日、目、讠、忄帮助区分",
+    words: [
+      { word: "青菜", pinyin: "qīngcài", en: "green vegetables", target: "青", pos: 0 },
+      { word: "今天是晴天", pinyin: "jīntiān shì qíngtiān", en: "It's sunny today", target: "晴", pos: 2 },
+      { word: "我的眼睛", pinyin: "wǒ de yǎnjing", en: "my eyes", target: "睛", pos: 2 },
+      { word: "请进", pinyin: "qǐng jìn", en: "please come in", target: "请", pos: 0 },
+      { word: "事情", pinyin: "shìqing", en: "matter; thing", target: "情", pos: 1 },
+    ],
+    practices: [
+      { q: "今天天气很___朗。", pinyin: "jīntiān tiānqì hěn ___lǎng", en: "The weather is sunny today", options: ["晴","睛","情"], answer: 0 },
+      { q: "我的眼___很大。", pinyin: "wǒ de yǎn___ hěn dà", en: "My eyes are big", options: ["睛","晴","请"], answer: 0 },
+      { q: "___跟我读。", pinyin: "___ gēn wǒ dú", en: "Please read after me", options: ["情","晴","请"], answer: 2 },
+    ]
+  },
+  // ── 二 共同部件与读音联系 日常词语 ──
+  {
+    num: 5, chars: ["包","跑","饱"], shared: "包",
+    category: "共同部件", section: "日常词语",
+    note: "足与动作、饣与吃有关",
+    words: [
+      { word: "汉堡包", pinyin: "hànbǎobāo", en: "hamburger", target: "包", pos: 2 },
+      { word: "跑步", pinyin: "pǎobù", en: "run; jog", target: "跑", pos: 0 },
+      { word: "吃饱了", pinyin: "chī bǎo le", en: "full after eating", target: "饱", pos: 1 },
+    ],
+    practices: [
+      { q: "我喜欢吃汉___。", pinyin: "wǒ xǐhuan chī hàn___", en: "I like eating hamburgers", options: ["跑","包","饱"], answer: 1 },
+      { q: "每天早上我___步。", pinyin: "měitiān zǎoshang wǒ ___bù", en: "I jog every morning", options: ["包","饱","跑"], answer: 2 },
+      { q: "我吃___了。", pinyin: "wǒ chī___ le", en: "I'm full", options: ["饱","包","跑"], answer: 0 },
+    ]
+  },
+  {
+    num: 6, chars: ["方","房","放"], shared: "方",
+    category: "共同部件", section: "日常词语",
+    note: "用词语确认意思",
+    words: [
+      { word: "这个地方", pinyin: "zhège dìfang", en: "this place", target: "方", pos: 2 },
+      { word: "书房", pinyin: "shūfáng", en: "study room", target: "房", pos: 1 },
+      { word: "放学了", pinyin: "fàngxué le", en: "school finishes", target: "放", pos: 0 },
+    ],
+    practices: [
+      { q: "那是我的书___。", pinyin: "nà shì wǒ de shū___", en: "That is my study room", options: ["放","房","方"], answer: 1 },
+      { q: "___学了，我们回家吧。", pinyin: "___xué le, wǒmen huí jiā ba", en: "School's over, let's go home", options: ["房","放","方"], answer: 1 },
+    ]
+  },
+  {
+    num: 7, chars: ["羊","洋","样"], shared: "羊",
+    category: "共同部件", section: "日常词语",
+    note: "读音接近；不能只靠偏旁猜完整词义",
+    words: [
+      { word: "羊肉", pinyin: "yángròu", en: "lamb; mutton", target: "羊", pos: 0 },
+      { word: "大洋洲", pinyin: "Dàyángzhōu", en: "Oceania", target: "洋", pos: 1 },
+      { word: "一样", pinyin: "yíyàng", en: "the same", target: "样", pos: 1 },
+    ],
+    practices: [
+      { q: "我们两个___。", pinyin: "wǒmen liǎng ge ___", en: "We two are the same", options: ["羊","样","洋"], answer: 1 },
+      { q: "___肉很好吃。", pinyin: "___ròu hěn hǎochī", en: "Lamb is delicious", options: ["羊","洋","样"], answer: 0 },
+    ]
+  },
+  {
+    num: 8, chars: ["古","姑","故"], shared: "古",
+    category: "共同部件", section: "日常词语",
+    note: "结合人物与旅游词语",
+    words: [
+      { word: "古迹", pinyin: "gǔjì", en: "historic site", target: "古", pos: 0 },
+      { word: "姑姑", pinyin: "gūgu", en: "paternal aunt", target: "姑", pos: 0 },
+      { word: "故宫", pinyin: "Gùgōng", en: "the Palace Museum", target: "故", pos: 0 },
+    ],
+    practices: [
+      { q: "我___姑很和蔼。", pinyin: "wǒ ___gu hěn hé'ǎi", en: "My aunt is kind", options: ["古","故","姑"], answer: 2 },
+      { q: "我们去___宫参观。", pinyin: "wǒmen qù ___gōng cānguān", en: "We visit the Palace Museum", options: ["姑","故","古"], answer: 1 },
+    ]
+  },
+  // ── 三 共同部件与读音联系 跨册复习 ──
+  {
+    num: 9, chars: ["白","怕","拍","伯"], shared: "白",
+    category: "共同部件", section: "跨册复习",
+    note: "共同部件白；现代读音差异较大",
+    words: [
+      { word: "白色", pinyin: "báisè", en: "white color", target: "白", pos: 0 },
+      { word: "我怕狗", pinyin: "wǒ pà gǒu", en: "I'm afraid of dogs", target: "怕", pos: 1 },
+      { word: "拍照片", pinyin: "pāi zhàopiàn", en: "take photos", target: "拍", pos: 0 },
+      { word: "大伯", pinyin: "dàbó", en: "father's elder brother", target: "伯", pos: 1 },
+    ],
+    practices: [
+      { q: "我___狗。", pinyin: "wǒ ___ gǒu", en: "I'm afraid of dogs", options: ["白","拍","怕"], answer: 2 },
+      { q: "我喜欢___色。", pinyin: "wǒ xǐhuan ___sè", en: "I like white color", options: ["怕","白","伯"], answer: 1 },
+      { q: "我们___照片吧。", pinyin: "wǒmen ___ zhàopiàn ba", en: "Let's take photos", options: ["拍","怕","白"], answer: 0 },
+    ]
+  },
+  {
+    num: 10, chars: ["很","跟","眼","银"], shared: "艮",
+    category: "共同部件", section: "跨册复习",
+    note: "很／跟先比较，眼／银稍后联系",
+    words: [
+      { word: "很好", pinyin: "hěn hǎo", en: "very good", target: "很", pos: 0 },
+      { word: "跟我读", pinyin: "gēn wǒ dú", en: "read after me", target: "跟", pos: 0 },
+      { word: "眼睛", pinyin: "yǎnjing", en: "eyes", target: "眼", pos: 0 },
+      { word: "银行", pinyin: "yínháng", en: "bank", target: "银", pos: 0 },
+    ],
+    practices: [
+      { q: "这本书___好看。", pinyin: "zhè běn shū ___ hǎokàn", en: "This book is very interesting", options: ["跟","眼","很"], answer: 2 },
+      { q: "___我读一遍。", pinyin: "___ wǒ dú yí biàn", en: "Read after me once", options: ["很","跟","银"], answer: 1 },
+      { q: "爸爸在___行工作。", pinyin: "bàba zài ___háng gōngzuò", en: "Dad works at a bank", options: ["银","眼","很"], answer: 0 },
+    ]
+  },
+  {
+    num: 11, chars: ["作","昨","炸"], shared: "乍",
+    category: "共同部件", section: "跨册复习",
+    note: "共同部件乍；炸鸡的炸读zhá",
+    words: [
+      { word: "工作", pinyin: "gōngzuò", en: "work", target: "作", pos: 1 },
+      { word: "昨天", pinyin: "zuótiān", en: "yesterday", target: "昨", pos: 0 },
+      { word: "炸鸡翅", pinyin: "zhá jīchì", en: "fried chicken wings", target: "炸", pos: 0 },
+    ],
+    practices: [
+      { q: "___天我去公园。", pinyin: "___tiān wǒ qù gōngyuán", en: "Yesterday I went to the park", options: ["作","炸","昨"], answer: 2 },
+      { q: "我爸爸每天___。", pinyin: "wǒ bàba měitiān ___", en: "My dad works every day", options: ["作","昨","炸"], answer: 0 },
+    ]
+  },
+  {
+    num: 12, chars: ["冷","零","令"], shared: "令",
+    category: "共同部件", section: "跨册复习",
+    note: "先比较天气词冷／零",
+    words: [
+      { word: "很冷", pinyin: "hěn lěng", en: "very cold", target: "冷", pos: 1 },
+      { word: "零度", pinyin: "líng dù", en: "zero degrees", target: "零", pos: 0 },
+      { word: "夏令营", pinyin: "xiàlìngyíng", en: "summer camp", target: "令", pos: 1 },
+    ],
+    practices: [
+      { q: "今天天气___。", pinyin: "jīntiān tiānqì ___", en: "The weather is cold today", options: ["零","冷","令"], answer: 1 },
+      { q: "温度是___度。", pinyin: "wēndù shì ___ dù", en: "The temperature is zero degrees", options: ["冷","零","令"], answer: 1 },
+    ]
+  },
+  // ── 四 共同部件与读音联系 补充联系 ──
+  {
+    num: 13, chars: ["主","住"], shared: "主",
+    category: "共同部件", section: "补充联系",
+    note: "区分主妇和住在",
+    words: [
+      { word: "家庭主妇", pinyin: "jiātíng zhǔfù", en: "homemaker", target: "主", pos: 2 },
+      { word: "住在曼谷", pinyin: "zhù zài Màngǔ", en: "live in Bangkok", target: "住", pos: 0 },
+    ],
+    practices: [
+      { q: "我___在学校附近。", pinyin: "wǒ ___ zài xuéxiào fùjìn", en: "I live near the school", options: ["住","主"], answer: 0 },
+      { q: "妈妈是家庭___妇。", pinyin: "māma shì jiātíng ___fù", en: "Mom is a homemaker", options: ["住","主"], answer: 1 },
+    ]
+  },
+  {
+    num: 14, chars: ["果","课","颗"], shared: "果",
+    category: "共同部件", section: "补充联系",
+    note: "读音变化较大，词语搭配最重要",
+    words: [
+      { word: "水果", pinyin: "shuǐguǒ", en: "fruit", target: "果", pos: 1 },
+      { word: "上课", pinyin: "shàngkè", en: "attend class", target: "课", pos: 1 },
+      { word: "四颗牙", pinyin: "sì kē yá", en: "four teeth", target: "颗", pos: 1 },
+    ],
+    practices: [
+      { q: "我喜欢吃水___。", pinyin: "wǒ xǐhuan chī shuǐ___", en: "I like eating fruit", options: ["课","颗","果"], answer: 2 },
+      { q: "现在是上___时间。", pinyin: "xiànzài shì shàng___ shíjiān", en: "It's class time now", options: ["课","果","颗"], answer: 0 },
+    ]
+  },
+  {
+    num: 15, chars: ["生","姓","星"], shared: "生",
+    category: "共同部件", section: "补充联系",
+    note: "观察shēng、xìng、xīng的读音联系",
+    words: [
+      { word: "生日", pinyin: "shēngrì", en: "birthday", target: "生", pos: 0 },
+      { word: "你姓什么", pinyin: "nǐ xìng shénme", en: "What is your surname?", target: "姓", pos: 1 },
+      { word: "星期一", pinyin: "xīngqīyī", en: "Monday", target: "星", pos: 0 },
+    ],
+    practices: [
+      { q: "今天是我的___日。", pinyin: "jīntiān shì wǒ de ___rì", en: "Today is my birthday", options: ["姓","星","生"], answer: 2 },
+      { q: "你___什么？", pinyin: "nǐ ___ shénme", en: "What is your surname?", options: ["生","姓","星"], answer: 1 },
+      { q: "___期一有语文课。", pinyin: "___qīyī yǒu yǔwén kè", en: "There is Chinese class on Monday", options: ["星","生","姓"], answer: 0 },
+    ]
+  },
+  {
+    num: 16, chars: ["分","粉"], shared: "分",
+    category: "共同部件", section: "补充联系",
+    note: "时间与颜色之间建立识字联系",
+    words: [
+      { word: "七点十分", pinyin: "qī diǎn shí fēn", en: "7:10", target: "分", pos: 3 },
+      { word: "粉色", pinyin: "fěnsè", en: "pink color", target: "粉", pos: 0 },
+    ],
+    practices: [
+      { q: "现在是七点十___。", pinyin: "xiànzài shì qī diǎn shí___", en: "It's 7:10 now", options: ["分","粉"], answer: 0 },
+      { q: "她喜欢___色。", pinyin: "tā xǐhuan ___sè", en: "She likes pink color", options: ["分","粉"], answer: 1 },
+    ]
+  },
+  // ── 五 形近字辨析 笔画与结构 ──
+  {
+    num: 17, chars: ["大","太","天"], shared: "",
+    category: "形近字", section: "笔画与结构",
+    note: "注意点和横画；三个字放进不同词语",
+    words: [
+      { word: "大象很大", pinyin: "dàxiàng hěn dà", en: "The elephant is big", target: "大", pos: 3 },
+      { word: "不太喜欢", pinyin: "bú tài xǐhuan", en: "do not like very much", target: "太", pos: 1 },
+      { word: "今天", pinyin: "jīntiān", en: "today", target: "天", pos: 1 },
+    ],
+    practices: [
+      { q: "我不___喜欢吃辣。", pinyin: "wǒ bú ___ xǐhuan chī là", en: "I don't like spicy food very much", options: ["大","太","天"], answer: 1 },
+      { q: "___是什么日子？", pinyin: "___ shì shénme rìzi", en: "What day is today?", options: ["太","大","天"], answer: 2 },
+    ]
+  },
+  {
+    num: 18, chars: ["日","白","百"], shared: "",
+    category: "形近字", section: "笔画与结构",
+    note: "观察上方和内部笔画，避免只看外框",
+    words: [
+      { word: "生日", pinyin: "shēngrì", en: "birthday", target: "日", pos: 1 },
+      { word: "白色的花", pinyin: "báisè de huā", en: "white flower", target: "白", pos: 0 },
+      { word: "五百", pinyin: "wǔbǎi", en: "five hundred", target: "百", pos: 1 },
+    ],
+    practices: [
+      { q: "今天是妈妈的生___。", pinyin: "jīntiān shì māma de shēng___", en: "Today is Mom's birthday", options: ["白","百","日"], answer: 2 },
+      { q: "这朵花是___色的。", pinyin: "zhè duǒ huā shì ___sè de", en: "This flower is white", options: ["日","白","百"], answer: 1 },
+      { q: "这本书___块。", pinyin: "zhè běn shū ___ kuài", en: "This book costs 500", options: ["百","白","日"], answer: 0 },
+    ]
+  },
+  {
+    num: 19, chars: ["口","回","目"], shared: "",
+    category: "形近字", section: "笔画与结构",
+    note: "比较内部结构",
+    words: [
+      { word: "一口人", pinyin: "yì kǒu rén", en: "one person (family member)", target: "口", pos: 1 },
+      { word: "回家", pinyin: "huí jiā", en: "go home", target: "回", pos: 0 },
+      { word: "科目", pinyin: "kēmù", en: "school subject", target: "目", pos: 1 },
+    ],
+    practices: [
+      { q: "我家有三___人。", pinyin: "wǒ jiā yǒu sān ___ rén", en: "There are 3 people in my family", options: ["回","目","口"], answer: 2 },
+      { q: "放学后我___家。", pinyin: "fàngxué hòu wǒ ___ jiā", en: "I go home after school", options: ["口","回","目"], answer: 1 },
+      { q: "数学是我的科___。", pinyin: "shùxué shì wǒ de kē___", en: "Math is my subject", options: ["目","口","回"], answer: 0 },
+    ]
+  },
+  {
+    num: 20, chars: ["本","末"], shared: "",
+    category: "形近字", section: "笔画与结构",
+    note: "横画位置不同；本子与周末分开认读",
+    words: [
+      { word: "本子", pinyin: "běnzi", en: "notebook", target: "本", pos: 0 },
+      { word: "周末", pinyin: "zhōumò", en: "weekend", target: "末", pos: 1 },
+    ],
+    practices: [
+      { q: "请打开___子。", pinyin: "qǐng dǎkāi ___zi", en: "Please open your notebook", options: ["本","末"], answer: 0 },
+      { q: "___末我们去公园。", pinyin: "___mò wǒmen qù gōngyuán", en: "We go to the park on weekend", options: ["末","本"], answer: 0 },
+    ]
+  },
+  // ── 六 形近字辨析 词语中的区别 ──
+  {
+    num: 21, chars: ["午","牛"], shared: "",
+    category: "形近字", section: "词语中的区别",
+    note: "竖画是否出头",
+    words: [
+      { word: "中午", pinyin: "zhōngwǔ", en: "noon", target: "午", pos: 1 },
+      { word: "牛仔裤", pinyin: "niúzǎikù", en: "jeans", target: "牛", pos: 0 },
+    ],
+    practices: [
+      { q: "___午我们吃面条。", pinyin: "___wǔ wǒmen chī miàntiáo", en: "We eat noodles at noon", options: ["牛","午"], answer: 1 },
+      { q: "他穿着___仔裤。", pinyin: "tā chuānzhe ___zǎikù", en: "He's wearing jeans", options: ["午","牛"], answer: 1 },
+    ]
+  },
+  {
+    num: 22, chars: ["了","子"], shared: "",
+    category: "形近字", section: "词语中的区别",
+    note: "子比了多一横；都要在完整词句中辨认",
+    words: [
+      { word: "养了一只猫", pinyin: "yǎng le yì zhī māo", en: "have raised a cat", target: "了", pos: 1 },
+      { word: "鼻子", pinyin: "bízi", en: "nose", target: "子", pos: 1 },
+    ],
+    practices: [
+      { q: "我买___一本书。", pinyin: "wǒ mǎi___ yì běn shū", en: "I bought a book", options: ["了","子"], answer: 0 },
+      { q: "他的鼻___很大。", pinyin: "tā de bí___ hěn dà", en: "His nose is big", options: ["子","了"], answer: 0 },
+    ]
+  },
+  {
+    num: 23, chars: ["己","已"], shared: "",
+    category: "形近字", section: "词语中的区别",
+    note: "注意开口位置",
+    words: [
+      { word: "自己", pinyin: "zìjǐ", en: "oneself", target: "己", pos: 1 },
+      { word: "已经", pinyin: "yǐjīng", en: "already", target: "已", pos: 0 },
+    ],
+    practices: [
+      { q: "我会自___做。", pinyin: "wǒ huì zì___ zuò", en: "I can do it myself", options: ["已","己"], answer: 1 },
+      { q: "我___经写完了。", pinyin: "wǒ ___jīng xiě wán le", en: "I have already finished writing", options: ["己","已"], answer: 1 },
+    ]
+  },
+  {
+    num: 24, chars: ["买","卖"], shared: "",
+    category: "形近字", section: "词语中的区别",
+    note: "卖上面多十；通过交易双方区分",
+    words: [
+      { word: "买文具", pinyin: "mǎi wénjù", en: "buy stationery", target: "买", pos: 0 },
+      { word: "卖水果", pinyin: "mài shuǐguǒ", en: "sell fruit", target: "卖", pos: 0 },
+    ],
+    practices: [
+      { q: "我去商店___铅笔。", pinyin: "wǒ qù shāngdiàn ___ qiānbǐ", en: "I go to the shop to buy pencils", options: ["买","卖"], answer: 0 },
+      { q: "那个阿姨___苹果。", pinyin: "nàge āyí ___ píngguǒ", en: "That aunt sells apples", options: ["卖","买"], answer: 0 },
+    ]
+  },
+  // ── 七 形近字辨析 学校与生活 ──
+  {
+    num: 25, chars: ["问","间"], shared: "",
+    category: "形近字", section: "学校与生活",
+    note: "门里面分别是口和日",
+    words: [
+      { word: "请问", pinyin: "qǐngwèn", en: "Excuse me; may I ask", target: "问", pos: 1 },
+      { word: "房间", pinyin: "fángjiān", en: "room", target: "间", pos: 1 },
+    ],
+    practices: [
+      { q: "请___，这是谁的？", pinyin: "qǐng___, zhè shì shéi de", en: "Excuse me, whose is this?", options: ["间","问"], answer: 1 },
+      { q: "这是我的房___。", pinyin: "zhè shì wǒ de fáng___", en: "This is my room", options: ["问","间"], answer: 1 },
+    ]
+  },
+  {
+    num: 26, chars: ["休","体"], shared: "",
+    category: "形近字", section: "学校与生活",
+    note: "右边是木还是本",
+    words: [
+      { word: "课间休息", pinyin: "kèjiān xiūxi", en: "break between classes", target: "休", pos: 2 },
+      { word: "体温", pinyin: "tǐwēn", en: "body temperature", target: "体", pos: 0 },
+    ],
+    practices: [
+      { q: "课___休息时我们喝水。", pinyin: "kè___ xiūxi shí wǒmen hē shuǐ", en: "During break we drink water", options: ["体","休"], answer: 1 },
+      { q: "___温正常。", pinyin: "___wēn zhèngcháng", en: "Body temperature is normal", options: ["休","体"], answer: 1 },
+    ]
+  },
+  {
+    num: 27, chars: ["近","进"], shared: "",
+    category: "形近字", section: "学校与生活",
+    note: "都有辶；里面分别是斤和井",
+    words: [
+      { word: "学校附近", pinyin: "xuéxiào fùjìn", en: "near the school", target: "近", pos: 2 },
+      { word: "请进教室", pinyin: "qǐng jìn jiàoshì", en: "please enter the classroom", target: "进", pos: 1 },
+    ],
+    practices: [
+      { q: "我家___学校。", pinyin: "wǒ jiā ___ xuéxiào", en: "My home is near the school", options: ["进","近"], answer: 1 },
+      { q: "老师来了，___教室吧。", pinyin: "lǎoshī lái le, ___ jiàoshì ba", en: "The teacher is here, go in", options: ["近","进"], answer: 1 },
+    ]
+  },
+  {
+    num: 28, chars: ["左","右","友"], shared: "",
+    category: "形近字", section: "学校与生活",
+    note: "左下是工，右下是口；友下部是又",
+    words: [
+      { word: "向左转", pinyin: "xiàng zuǒ zhuǎn", en: "turn left", target: "左", pos: 1 },
+      { word: "向右转", pinyin: "xiàng yòu zhuǎn", en: "turn right", target: "右", pos: 1 },
+      { word: "我的朋友", pinyin: "wǒ de péngyou", en: "my friend", target: "友", pos: 2 },
+    ],
+    practices: [
+      { q: "图书馆在我___边。", pinyin: "túshūguǎn zài wǒ ___biān", en: "The library is on my left", options: ["右","友","左"], answer: 2 },
+      { q: "他是我的好朋___。", pinyin: "tā shì wǒ de hǎo péng___", en: "He is my good friend", options: ["友","左","右"], answer: 0 },
+    ]
+  },
+  // ── 八 同音字用法与拓展取舍 ──
+  {
+    num: 29, chars: ["做","作","坐"], shared: "",
+    category: "同音用法", section: "同音字用法",
+    note: "都读zuò；先固定常用搭配",
+    words: [
+      { word: "做作业", pinyin: "zuò zuòyè", en: "do homework", target: "做", pos: 0 },
+      { word: "作业", pinyin: "zuòyè", en: "homework", target: "作", pos: 0 },
+      { word: "请坐", pinyin: "qǐng zuò", en: "please sit down", target: "坐", pos: 1 },
+    ],
+    practices: [
+      { q: "我每天___作业。", pinyin: "wǒ měitiān ___ zuòyè", en: "I do homework every day", options: ["作","坐","做"], answer: 2 },
+      { q: "___业写完了吗？", pinyin: "___yè xiě wán le ma", en: "Is the homework done?", options: ["做","坐","作"], answer: 2 },
+      { q: "客人来了，请___。", pinyin: "kèrén lái le, qǐng ___", en: "The guest is here, please sit", options: ["坐","作","做"], answer: 0 },
+    ]
+  },
+  {
+    num: 30, chars: ["在","再"], shared: "",
+    category: "同音用法", section: "同音字用法",
+    note: "都读zài；用熟悉的完整词语建立区别",
+    words: [
+      { word: "住在曼谷", pinyin: "zhù zài Màngǔ", en: "live in Bangkok", target: "在", pos: 1 },
+      { word: "再见", pinyin: "zàijiàn", en: "goodbye (see you again)", target: "再", pos: 0 },
+    ],
+    practices: [
+      { q: "我___学校吃午饭。", pinyin: "wǒ ___ xuéxiào chī wǔfàn", en: "I eat lunch at school", options: ["再","在"], answer: 1 },
+      { q: "___见，明天上课。", pinyin: "___jiàn, míngtiān shàngkè", en: "Goodbye, see you in class tomorrow", options: ["在","再"], answer: 1 },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
+
+function renderGroups(filter) {
+  var container = document.getElementById('groupsContainer');
+  var html = '';
+  var lastSection = '';
+
+  var filtered = filter === 'all' ? GROUPS : GROUPS.filter(function(g) {
+    return g.category === filter;
+  });
+
+  filtered.forEach(function(g) {
+    // Section divider
+    if (g.section !== lastSection) {
+      lastSection = g.section;
+      var romanMap = {
+        '起步联系': '一', '日常词语': '二', '跨册复习': '三', '补充联系': '四',
+        '笔画与结构': '五', '词语中的区别': '六', '学校与生活': '七', '同音字用法': '八'
+      };
+      html += '<div class="section-title">' + (romanMap[g.section] || '') + ' ' + g.section + '</div>';
+    }
+
+    // Group header chars with shared part highlighted
+    var charsHtml = g.chars.map(function(c) {
+      if (g.shared && c.indexOf(g.shared) >= 0) {
+        // Highlight the shared component in each character
+        var idx = c.indexOf(g.shared);
+        if (c === g.shared) {
+          return '<span class="shared">' + c + '</span>';
+        }
+        // For characters containing the shared component, highlight just that part
+        return c; // Can't easily highlight sub-component in display, keep as is
+      }
+      return '<span class="target">' + c + '</span>';
+    }).join(' ');
+
+    html += '<div class="group-card" data-num="' + g.num + '">';
+    html += '<div class="group-header" onclick="toggleGroup(this)">';
+    html += '<span class="group-num">第' + g.num + '组</span>';
+    html += '<span class="group-chars cn">' + charsHtml + '</span>';
+    if (g.shared) {
+      html += '<span class="group-tag cn">共同部件：' + g.shared + '</span>';
+    } else {
+      html += '<span class="group-tag cn">' + g.section + '</span>';
+    }
+    html += '<span class="group-arrow">▶</span>';
+    html += '</div>';
+
+    // Body
+    html += '<div class="group-body">';
+
+    // Word cards
+    html += '<div class="words-grid">';
+    g.words.forEach(function(w) {
+      // Build the word with the target character highlighted
+      var wordHtml = '';
+      for (var i = 0; i < w.word.length; i++) {
+        if (i === w.pos) {
+          wordHtml += '<span class="hl">' + w.word[i] + '</span>';
+        } else {
+          wordHtml += w.word[i];
+        }
+      }
+
+      html += '<div class="word-card">';
+      html += '<div class="word-context cn">' + wordHtml + '</div>';
+      html += '<div class="word-pinyin">' + w.pinyin + '</div>';
+      html += '<div class="word-en">' + w.en + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // Component clue
+    if (g.shared) {
+      html += '<div class="component-clue" style="margin:0 18px 14px">';
+      html += '<span class="icon">💡</span>';
+      html += '<span class="cn">' + g.note + '</span>';
+      html += '</div>';
+    }
+
+    // Practice
+    if (g.practices && g.practices.length) {
+      html += '<div class="practice-section">';
+      html += '<h4>✏️ 选字填空</h4>';
+      g.practices.forEach(function(p, pi) {
+        var qHtml = '';
+        // Replace ___ with blank span
+        qHtml = p.q.replace('___', '<span class="blank" data-group="' + g.num + '" data-practice="' + pi + '">？</span>');
+
+        html += '<div class="practice-item">';
+        html += '<div class="practice-question cn">' + qHtml + '</div>';
+        html += '<div class="word-pinyin">' + p.pinyin + '</div>';
+        html += '<div class="word-en" style="margin-bottom:8px">' + p.en + '</div>';
+        html += '<div class="practice-options">';
+        p.options.forEach(function(opt, oi) {
+          html += '<button onclick="checkAnswer(this,' + g.num + ',' + pi + ',' + oi + ',' + p.answer + ')" class="cn">' + opt + '</button>';
+        });
+        html += '</div>';
+        html += '<div class="practice-feedback" id="fb-' + g.num + '-' + pi + '"></div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>'; // group-body
+    html += '</div>'; // group-card
+  });
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INTERACTION
+// ═══════════════════════════════════════════════════════════
+
+function toggleGroup(headerEl) {
+  var card = headerEl.closest('.group-card');
+  card.classList.toggle('open');
+}
+
+function checkAnswer(btn, groupNum, practiceIdx, selectedIdx, correctIdx) {
+  var allBtns = btn.parentElement.querySelectorAll('button');
+  allBtns.forEach(function(b) { b.classList.remove('selected', 'correct', 'wrong'); });
+
+  var blank = document.querySelector('.blank[data-group="' + groupNum + '"][data-practice="' + practiceIdx + '"]');
+  var feedback = document.getElementById('fb-' + groupNum + '-' + practiceIdx);
+
+  if (selectedIdx === correctIdx) {
+    btn.classList.add('correct');
+    if (blank) {
+      blank.classList.add('filled', 'correct');
+      blank.textContent = btn.textContent;
+    }
+    feedback.className = 'practice-feedback show ok';
+    feedback.textContent = '✓ 正确！' + btn.textContent + ' —— 答对了！';
+  } else {
+    btn.classList.add('wrong');
+    // Also show the correct one
+    allBtns[correctIdx].classList.add('correct');
+    if (blank) {
+      blank.classList.add('filled', 'wrong');
+      blank.textContent = btn.textContent;
+    }
+    feedback.className = 'practice-feedback show no';
+    feedback.textContent = '✗ 正确答案是 ' + allBtns[correctIdx].textContent;
+  }
+}
+
+// Filter buttons
+document.getElementById('filterBar').addEventListener('click', function(e) {
+  if (e.target.tagName !== 'BUTTON') return;
+  this.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+  e.target.classList.add('active');
+  renderGroups(e.target.dataset.filter);
+});
+
+// Nav buttons
+document.getElementById('sectionNav').addEventListener('click', function(e) {
+  if (e.target.tagName !== 'BUTTON') return;
+  this.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+  e.target.classList.add('active');
+
+  var section = e.target.dataset.section;
+  if (section === 'all') {
+    document.querySelector('[data-filter="all"]').click();
+  } else if (section === '共同部件') {
+    document.querySelector('[data-filter="共同部件"]').click();
+  } else if (section === '形近字') {
+    document.querySelector('[data-filter="形近字"]').click();
+  } else if (section === '同音用法') {
+    document.querySelector('[data-filter="同音用法"]').click();
+  } else if (section === '练习模式') {
+    // Open all groups and scroll to first practice
+    document.querySelectorAll('.group-card').forEach(function(c) { c.classList.add('open'); });
+  }
+});
+
+// Back to top
+window.addEventListener('scroll', function() {
+  var btn = document.getElementById('backTop');
+  if (window.scrollY > 300) btn.classList.add('show');
+  else btn.classList.remove('show');
+});
+
+// Initial render
+renderGroups('all');
+
+// Auto-open first group
+setTimeout(function() {
+  var first = document.querySelector('.group-card');
+  if (first) first.classList.add('open');
+}, 100);
+</script>
+
+</body>
+</html>
